@@ -1,0 +1,10 @@
+#!/bin/bash
+# Kích hoạt venv
+source /Users/thuhoai/Downloads/stock-1/venv/bin/activate
+
+# Chạy script update_stocks.py
+python /Users/thuhoai/Downloads/stock-1/update_stocks.py >> /Users/thuhoai/Downloads/stock-1/update_log.txt 2>&1
+
+chmod +x run_update_stocks.sh
+
+›

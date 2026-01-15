@@ -1,0 +1,148 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <main>
+        <section class="hero-banner">
+            <div class="container">
+                <div class="hero-banner-content">
+                    <h1 class="hero-banner-title">Welcome to StockInsight</h1>
+                    <p class="hero-banner-description">Your trusted platform for real-time stock market data, analysis,
+                        and investment insights.</p>
+                    <div class="hero-banner-actions">
+                        <a href="/user/stocks" class="btn btn-primary btn-large">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-image">
+                        <img src="https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+                            alt="Stock Dashboard Illustration" loading="lazy">
+                    </div>
+                    <div class="about-text">
+                        <h2 class="about-title">About StockInsight</h2>
+                        <p class="about-description">StockInsight provides live market data, stock charts, financial
+                            news, and personalized services. Track your favorite stocks, get real-time alerts, and
+                            subscribe to advanced analytics to make informed investment decisions with confidence.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <div class="container">
+                <h2 class="section-title">Our Features & Services</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://images.pexels.com/photos/590020/pexels-photo-590020.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop"
+                                alt="Real-time Data" loading="lazy">
+                        </div>
+                        <h3 class="feature-title">Real-time Data</h3>
+                        <p class="feature-description">Access live stock prices, market movements, and trading volumes
+                            updated in real-time to stay ahead of market trends.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://images.pexels.com/photos/3483098/pexels-photo-3483098.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop"
+                                alt="Smart Analysis" loading="lazy">
+                        </div>
+                        <h3 class="feature-title">Smart Analysis</h3>
+                        <p class="feature-description">Leverage advanced analytics, technical indicators, and AI-powered
+                            insights to make data-driven investment decisions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://images.pexels.com/photos/6772076/pexels-photo-6772076.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop"
+                                alt="News & Updates" loading="lazy">
+                        </div>
+                        <h3 class="feature-title">News & Updates</h3>
+                        <p class="feature-description">Stay informed with the latest financial news, market analysis,
+                            and company updates from trusted sources worldwide.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <img src="https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop"
+                                alt="Premium Services" loading="lazy">
+                        </div>
+                        <h3 class="feature-title">Premium Services</h3>
+                        <p class="feature-description">Unlock advanced features including portfolio analytics, custom
+                            alerts, and exclusive research reports with our premium plans.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="market-indices">
+            <div class="container">
+                <h2 class="section-title">Market Overview</h2>
+                <div class="indices-grid" id="indices-grid">
+                    <div class="index-card">
+                        <h3>VN-Index</h3>
+                        <div class="index-value">1,234.56</div>
+                        <div class="index-change positive">+12.34 (+1.01%)</div>
+                    </div>
+                    <div class="index-card">
+                        <h3>HNX-Index</h3>
+                        <div class="index-value">234.78</div>
+                        <div class="index-change negative">-2.45 (-1.03%)</div>
+                    </div>
+                    <div class="index-card">
+                        <h3>UPCOM-Index</h3>
+                        <div class="index-value">89.12</div>
+                        <div class="index-change positive">+0.89 (+1.01%)</div>
+                    </div>
+                    <div class="index-card">
+                        <h3>S&P 500</h3>
+                        <div class="index-value">4,567.89</div>
+                        <div class="index-change positive">+45.67 (+1.01%)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-stocks">
+            <div class="container">
+                <h2 class="section-title">Featured Stocks</h2>
+                <div class="stocks-grid" id="featured-stocks">
+
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-links">
+            <div class="container">
+                <h2 class="section-title">Quick Access</h2>
+                <div class="links-grid">
+                    <a href="/user/stocks" class="link-card">
+                        <h3>Stock Screener</h3>
+                        <p>Find stocks by sector, market cap, and performance</p>
+                    </a>
+                    <a href="/user/news" class="link-card">
+                        <h3>Market News</h3>
+                        <p>Stay updated with the latest market developments</p>
+                    </a>
+                    <a href="/user/subscription" class="link-card">
+                        <h3>Premium Features</h3>
+                        <p>Unlock advanced analytics and real-time data</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% endblock %}
+
+{% block extra_scripts %}
+
+
+   {% endblock %}
+
+</body>
+
+</html>

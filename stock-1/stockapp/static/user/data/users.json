@@ -1,0 +1,56 @@
+[
+  {
+    "id": "demo_user_1",
+    "name": "Demo User",
+    "email": "demo@stockhub.com",
+    "password": "demo123",
+    "joinDate": "2024-12-28T12:00:00Z",
+    "lastLogin": "2025-01-27T12:00:00Z",
+    "newsletter": true,
+    "subscription": {
+      "plan": "basic",
+      "name": "Basic",
+      "price": 0,
+      "status": "active",
+      "startDate": "2024-12-28T12:00:00Z",
+      "endDate": null
+    },
+    "preferences": {
+      "emailNotifications": true,
+      "theme": "light",
+      "currency": "USD"
+    },
+    "stats": {
+      "stocksWatched": 5,
+      "articlesRead": 12,
+      "alertsSet": 3
+    }
+  },
+  {
+    "id": "demo_user_2",
+    "name": "Premium Demo",
+    "email": "premium@stockhub.com",
+    "password": "premium123",
+    "joinDate": "2024-11-28T12:00:00Z",
+    "lastLogin": "2025-01-27T12:00:00Z",
+    "newsletter": true,
+    "subscription": {
+      "plan": "premium",
+      "name": "Premium",
+      "price": 29,
+      "status": "active",
+      "startDate": "2024-12-28T12:00:00Z",
+      "endDate": "2025-02-26T12:00:00Z"
+    },
+    "preferences": {
+      "emailNotifications": true,
+      "theme": "light",
+      "currency": "USD"
+    },
+    "stats": {
+      "stocksWatched": 25,
+      "articlesRead": 45,
+      "alertsSet": 15
+    }
+  }
+]

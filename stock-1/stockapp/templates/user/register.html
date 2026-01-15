@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockHub - Sign Up</title>
+    <link rel="stylesheet" href="/static/user/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+</head>
+
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="/user/home" class="nav-logo">StockHub</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/user/home" class="nav-link">Home</a>
+                <a href="/user/stocks" class="nav-link">Stocks</a>
+                <a href="/user/news" class="nav-link">News</a>
+                <a href="/user/subscription" class="nav-link">Subscription</a>
+                <a href="/user/personal" class="nav-link">Profile</a>
+                <div class="nav-auth">
+                    <a href="/user/login" class="btn btn-outline">Login</a>
+                    <a href="/user/register" class="btn btn-primary active">Sign Up</a>
+                </div>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-form-wrapper">
+                <div class="auth-header">
+                    <h1>Create Your Account</h1>
+                    <p>Join StockHub to start tracking your investments</p>
+                </div>
+
+                <form class="auth-form" id="register-form">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-input" required
+                            placeholder="Enter your full name">
+                        <div class="form-error" id="name-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input" required
+                            placeholder="Enter your email address">
+                        <div class="form-error" id="email-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" required
+                            placeholder="Create a strong password">
+                        <div class="form-error" id="password-error"></div>
+                        <div class="password-requirements">
+                            <small>Password must be at least 6 characters long</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password" class="form-label">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" class="form-input" required
+                            placeholder="Confirm your password">
+                        <div class="form-error" id="confirm-password-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" id="terms-checkbox" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#"
+                                class="link">Privacy Policy</a>
+                        </label>
+                        <div class="form-error" id="terms-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" id="newsletter-checkbox" checked>
+                            <span class="checkmark"></span>
+                            Subscribe to our newsletter for market updates and tips
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-full" id="register-btn">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="/user/login">Sign in here</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>StockHub</h3>
+                    <p>Your trusted partner in stock market investments</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Products</h4>
+                        <a href="/user/stocks">Stock Screener</a>
+                        <a href="/user/news">Market News</a>
+                        <a href="/user/subscription">Premium Plans</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Company</h4>
+                        <a href="#about">About Us</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#privacy">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StockHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/user/js/helpers.js"></script>
+    <script src="/static/user/js/api.js"></script>
+    <script src="/static/user/js/auth.js"></script>
+    <script src="/static/user/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            initializeRegisterForm();
+        });
+
+        function initializeRegisterForm() {
+            const form = document.getElementById('register-form');
+            const registerBtn = document.getElementById('register-btn');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    confirmPassword: document.getElementById('confirm-password').value,
+                    termsAccepted: document.getElementById('terms-checkbox').checked,
+                    newsletter: document.getElementById('newsletter-checkbox').checked
+                };
+
+                // Clear previous errors
+                clearFormErrors();
+
+                // Validate form
+                if (!validateRegisterForm(formData)) {
+                    return;
+                }
+
+                // Show loading state
+                registerBtn.textContent = 'Creating Account...';
+                registerBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/register/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: formData.name,
+                            email: formData.email,
+                            password: formData.password
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Account created successfully! Welcome to StockHub!');
+                        setTimeout(() => {
+                            window.location.href = '/user/login/'; // redirect tới login
+                        }, 500);
+                    } else {
+                        showFormError('email', result.error || 'Registration failed');
+                        registerBtn.textContent = 'Create Account';
+                        registerBtn.disabled = false;
+                    }
+
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    showFormError('email', 'An error occurred. Please try again.');
+                    registerBtn.textContent = 'Create Account';
+                    registerBtn.disabled = false;
+                }
+            });
+
+            // Real-time password validation
+            document.getElementById('password').addEventListener('input', validatePasswordStrength);
+            document.getElementById('confirm-password').addEventListener('input', validatePasswordMatch);
+        }
+
+        function validateRegisterForm(data) {
+            let isValid = true;
+
+            // Name validation
+            if (!data.name.trim()) {
+                showFormError('name', 'Full name is required');
+                isValid = false;
+            } else if (data.name.trim().length < 2) {
+                showFormError('name', 'Name must be at least 2 characters long');
+                isValid = false;
+            }
+
+            // Email validation
+            if (!data.email) {
+                showFormError('email', 'Email is required');
+                isValid = false;
+            } else if (!isValidEmail(data.email)) {
+                showFormError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Password validation
+            if (!data.password) {
+                showFormError('password', 'Password is required');
+                isValid = false;
+            } else if (data.password.length < 6) {
+                showFormError('password', 'Password must be at least 6 characters long');
+                isValid = false;
+            }
+
+            // Confirm password validation
+            if (!data.confirmPassword) {
+                showFormError('confirm-password', 'Please confirm your password');
+                isValid = false;
+            } else if (data.password !== data.confirmPassword) {
+                showFormError('confirm-password', 'Passwords do not match');
+                isValid = false;
+            }
+
+            // Terms validation
+            if (!data.termsAccepted) {
+                showFormError('terms', 'You must accept the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function validatePasswordStrength() {
+            const password = document.getElementById('password').value;
+            const requirements = document.querySelector('.password-requirements small');
+
+            if (password.length === 0) {
+                requirements.textContent = 'Password must be at least 6 characters long';
+                requirements.style.color = '#666';
+                return;
+            }
+
+            if (password.length < 6) {
+                requirements.textContent = `Password too short (${password.length}/6 characters)`;
+                requirements.style.color = '#ef4444';
+            } else {
+                requirements.textContent = 'Password meets requirements ✓';
+                requirements.style.color = '#10b981';
+            }
+        }
+
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (confirmPassword && password !== confirmPassword) {
+                showFormError('confirm-password', 'Passwords do not match');
+            } else if (confirmPassword && password === confirmPassword) {
+                clearFieldError('confirm-password');
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showFormError(field, message) {
+            const errorElement = document.getElementById(field + '-error');
+            const inputElement = document.getElementById(field) || document.getElementById(field + '-checkbox');
+
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+            if (inputElement) {
+                inputElement.classList.add('error');
+            }
+        }
+
+        function clearFieldError(field) {
+            const errorElement = document.getElementById(field + '-error');
+            const inputElement = document.getElementById(field);
+
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+            if (inputElement) {
+                inputElement.classList.remove('error');
+            }
+        }
+
+        function clearFormErrors() {
+            const errorElements = document.querySelectorAll('.form-error');
+            const inputElements = document.querySelectorAll('.form-input, input[type="checkbox"]');
+
+            errorElements.forEach(el => el.textContent = '');
+            inputElements.forEach(el => el.classList.remove('error'));
+        }
+
+        // Handle terms and privacy policy links
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (this.textContent.includes('Terms')) {
+                    alert('Terms of Service would be displayed here.');
+                } else if (this.textContent.includes('Privacy')) {
+                    alert('Privacy Policy would be displayed here.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

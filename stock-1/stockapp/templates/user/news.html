@@ -1,0 +1,265 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<main>
+    <section class="page-header">
+        <div class="container">
+            <h1>Market News</h1>
+            <p>Stay informed with the latest market developments and analysis</p>
+        </div>
+    </section>
+
+    <section class="news-section">
+        <div class="container">
+             <div class="news-filters">
+            <button class="filter-btn active" data-category="all">All News</button>
+            <button class="filter-btn" data-category="stocks">Stocks</button>
+            <button class="filter-btn" data-category="economy">Economy</button>
+            <button class="filter-btn" data-category="banking">Banking</button>
+            <button class="filter-btn" data-category="real_estate">Real Estate</button>
+        </div>
+
+        <div id="news-grid" class="news-grid"></div>
+        <div id="pagination" class="pagination-wrapper" style="text-align:center;margin-top:20px;"></div>
+        <div id="news-loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading news...</p>
+        </div>
+
+
+            <!-- Pagination -->
+            <div id="pagination" class="pagination-wrapper" style="text-align: center; margin-top: 20px;"></div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentPage = 1;
+let selectedCategory = 'all';
+const limit = 9;
+let latestNews = []; // lưu tạm toàn bộ news
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNews();
+});
+
+async function loadNews(page = 1) {
+    currentPage = page;
+    const loading = document.getElementById('news-loading');
+    loading.style.display = 'block';
+
+    try {
+        const response = await fetch(`/get_list_news_user/?limit=${limit}&page=${page}`);
+        const data = await response.json();
+
+        if (data.success) {
+            // chuẩn hóa category chữ thường
+            latestNews = data.news_data.map(n => {
+                n.category = (n.category || 'other').toLowerCase();
+                return n;
+            });
+
+            displayNews();
+            renderPagination(data.total_pages, page);
+        } else {
+            console.error('Error:', data.error);
+        }
+    } catch (err) {
+        console.error('Error loading news:', err);
+    } finally {
+        loading.style.display = 'none';
+    }
+}
+function displayNews() {
+    const newsGrid = document.getElementById('news-grid');
+    newsGrid.innerHTML = '';
+
+    latestNews.forEach(article => {
+        const card = createNewsCard(article);
+        const cardCategory = article.category;
+        if (selectedCategory === 'all' || selectedCategory === cardCategory) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+        newsGrid.appendChild(card);
+    });
+}
+
+
+function createNewsCard(article) {
+    const card = document.createElement('article');
+    card.className = 'news-card';
+    const category = (article.category || 'other').toLowerCase();
+    card.setAttribute('data-category', category);
+
+    // Kiểm tra nếu không có ảnh hoặc là 1x1 GIF, dùng ảnh mặc định
+    let imgSrc = article.image_news || '/static/user/images/chungkhoan.png';
+    if (imgSrc.includes("R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")) {
+        imgSrc = '/static/user/images/chungkhoan.png';
+    }
+
+    card.innerHTML = `
+        <div class="news-image">
+            <img class="news-img" src="${imgSrc}" alt="${article.title}" loading="lazy">
+            <div class="news-category">${article.category || 'Other'}</div>
+        </div>
+        <div class="news-content">
+            <h3 class="news-title">
+                <a href="${article.url_news}" target="_blank">${article.title}</a>
+            </h3>
+            <p class="news-description">${article.description || ''}</p>
+            <div class="news-meta">
+                <span class="news-date">${formatDate(article.updated_at)}</span>
+            </div>
+        </div>
+    `;
+    return card;
+}
+
+
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+}
+
+function renderPagination(totalPages, currentPage) {
+    const paginationEl = document.getElementById('pagination');
+    let html = `<nav><ul class="pagination" style="display:flex;justify-content:center;gap:5px;">`;
+
+    // Prev
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage-1})">Prev</a>
+             </li>`;
+
+    const maxVisible = 5; 
+    let pages = [];
+
+    if (totalPages <= maxVisible + 2) {
+        pages = [...Array(totalPages).keys()].map(i => i + 1);
+    } else {
+        if (currentPage <= maxVisible) {
+            pages = [...Array(maxVisible).keys()].map(i => i + 1);
+            pages.push('...', totalPages);
+        } else if (currentPage >= totalPages - maxVisible + 1) {
+            pages = [1, '...'];
+            pages.push(...[...Array(maxVisible).keys()].map(i => totalPages - maxVisible + 1 + i));
+        } else {
+            pages = [1, '...'];
+            pages.push(currentPage - 1, currentPage, currentPage + 1);
+            pages.push('...', totalPages);
+        }
+    }
+
+    // Render các trang
+    pages.forEach(p => {
+        if (p === '...') {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        } else {
+            html += `<li class="page-item ${p === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${p})">${p}</a>
+                     </li>`;
+        }
+    });
+
+    // Next
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage+1})">Next</a>
+             </li>`;
+
+    html += `</ul></nav>`;
+    paginationEl.innerHTML = html;
+}
+
+
+function changePage(page) {
+    if (page < 1) return;
+    currentPage = page;
+    loadNews(page);
+}
+
+
+
+function filterNews(category) {
+    selectedCategory = category.toLowerCase();
+    displayNews(JSON.parse(localStorage.getItem('latestNews')) || []);
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedCategory = btn.getAttribute('data-category').toLowerCase();
+        displayNews();
+    });
+});
+
+</script>
+<style>
+    .news-img {
+    max-width: 100%;    /* Không vượt quá container */
+    height: auto;       /* Giữ tỉ lệ ảnh */
+    display: block;     /* Loại bỏ khoảng trắng bên dưới ảnh */
+    object-fit: contain; /* Hiển thị toàn bộ ảnh, kể cả GIF */
+
+    }
+
+/* Phần phân trang */
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+    gap: 5px;
+}
+
+.pagination .page-item {
+    display: inline-block;
+}
+
+.pagination .page-link {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #6777ef;
+    color: #fff;
+    border-color: #6777ef;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #6777ef;
+    color: #fff;
+    border-color: #6777ef;
+    cursor: default;
+}
+
+.pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive: nhỏ hơn 600px */
+@media (max-width: 600px) {
+    .pagination .page-link {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+}
+
+
+</style>
+{% endblock %}

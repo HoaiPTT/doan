@@ -1,0 +1,607 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Personal{% endblock %}
+
+{% block content %}
+<main>
+    <div class="personal-content" id="personal-content" style="display: none;">
+        <section class="profile-header">
+            <div class="container">
+                <div class="profile-overview">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle" id="user-avatar">
+                            <img src="/static/user/images/avt.jpg" alt="avatar">
+                        </div>
+                    </div>
+
+
+                    <div class="profile-info">
+                        <h1 id="user-name">User Name</h1>
+                        <p class="user-email" id="user-email">user@example.com</p>
+
+                        <div class="user-status">
+                            <span class="status-badge" id="subscription-status">Free Plan</span>
+                            <span class="join-date">Joined <span id="join-date">--</span></span>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn btn-outline" onclick="editProfile()">Change Password</button>
+                        <a href="/user/subscription" class="btn btn-primary">Upgrade Plan</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-content">
+            <div class="container">
+                <div class="dashboard-grid">
+                    <div class="dashboard-main">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>My Watchlist</h3>
+                                <span class="watchlist-count" id="watchlist-count">0 stocks</span>
+                            </div>
+                            <div class="watchlist-content" id="watchlist-content">
+                                <div class="empty-state">
+                                    <p>Your watchlist is empty</p>
+                                    <a href="/user/stocks" class="btn btn-primary">Browse Stocks</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Subscription History</h3>
+                        </div>
+                        <div class="subscription-content" id="subscription-content">
+                            <div class="subscription-list" id="subscription-list">
+                                <p>Loading subscription history...</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Notifications</h3>
+                                <div class="notification-settings">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="email-notifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span>Email alerts</span>
+                                </div>
+                            </div>
+                            <div class="notifications-content">
+                                <div class="notification-item">
+                                    <div class="notification-icon">🔔</div>
+                                    <div class="notification-details">
+                                        <span class="notification-title">Welcome to StockHub!</span>
+                                        <span class="notification-message">Start building your investment portfolio
+                                            today.</span>
+                                        <span class="notification-time">Just now</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-sidebar">
+                        <div class="dashboard-card">
+                            <h3>Subscription Details</h3>
+                            <div class="subscription-info">
+                                <div class="subscription-plan" id="current-plan">
+                                    <span class="plan-name">Basic Plan</span>
+                                    <span class="plan-price">Free</span>
+                                </div>
+                                <div class="subscription-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-value" id="plan-status">Active</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Valid Until:</span>
+                                        <span class="detail-value" id="plan-expiry">Forever</span>
+                                    </div>
+                                </div>
+                                <div class="subscription-features">
+                                    <h4>Your Plan Includes:</h4>
+                                    <ul id="plan-features">
+                                        <li>Basic stock quotes (15-min delay)</li>
+                                        <li>Market news access</li>
+                                        <li>Basic watchlist (10 stocks)</li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Quick Stats</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-value" id="stocks-watched">0</span>
+                                    <span class="stat-label">Stocks Watched</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="articles-read">0</span>
+                                    <span class="stat-label">Articles Read</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="alerts-set">0</span>
+                                    <span class="stat-label">Alerts Set</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="days-active">1</span>
+                                    <span class="stat-label">Days Active</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- Popup đổi mật khẩu -->
+<div id="change-password-modal" class="modal-overlay" style="display: none;">
+  <div class="modal">
+    <h2>Change Password</h2>
+    <form id="change-password-form">
+      <div class="form-group">
+        <label for="current-password">Current Password</label>
+        <input type="password" id="current-password" name="current_password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="new-password">New Password</label>
+        <input type="password" id="new-password" name="new_password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password">Confirm New Password</label>
+        <input type="password" id="confirm-password" name="confirm_password" required>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeChangePasswordModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+        </section>
+    </div>
+</main>
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        /* ảnh không bị tràn */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #ddd;
+    }
+
+    .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* giữ tỉ lệ, ảnh lấp kín vòng */
+    }
+    .subscription-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.subscription-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.subscription-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.subscription-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    color: #2563eb; /* màu xanh chủ đạo */
+    flex-shrink: 0;
+}
+
+.subscription-details {
+    flex: 1;
+    margin-right: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.subscription-plan {
+    font-weight: 600;
+    font-size: 15px;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.subscription-date {
+    font-size: 13px;
+    color: #6b7280; 
+    margin-top: 2px;
+}
+
+.subscription-status {
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 13px;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Màu trạng thái */
+.status-active { background-color: #d1fae5; color: #16a34a; }
+.status-expired { background-color: #fee2e2; color: #dc2626; }
+
+
+@media (max-width: 600px) {
+    .subscription-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .subscription-status {
+        min-width: auto;
+        width: 100%;
+        text-align: left;
+    }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        // Chưa login → redirect 1 lần
+        window.location.href = "/user/login/";
+        return;
+    }
+
+    try {
+        // Lấy thông tin user
+        const resUser = await fetch("/api/userinfo/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const dataUser = await resUser.json();
+
+        if (!dataUser.success) {
+            console.error("Load user info failed:", dataUser.error);
+            window.location.href = "/user/login/";
+            return;
+        }
+
+        const user = dataUser.user;
+
+        // Hiển thị thông tin cơ bản
+        document.getElementById("user-name").textContent = user.name;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("join-date").textContent =
+            user.created_at ? Helpers.formatDate(new Date(user.created_at)) : "--";
+        document.getElementById("personal-content").style.display = "block";
+
+        // Load các phần
+        loadUserInfo(user);
+        await loadWatchlist(token);
+        await loadSubscriptionHistory(token);
+        loadUserStats(user);
+
+    } catch (err) {
+        console.error("Error loading personal dashboard:", err);
+        window.location.href = "/user/login/";
+    }
+});
+
+function loadUserInfo(user) {
+    const joinDate = user.created_at ? new Date(user.created_at) : new Date();
+    document.getElementById('join-date').textContent = Helpers.formatDate(joinDate);
+
+    if (user.subscription) {
+        const sub = user.subscription;
+
+        document.getElementById('subscription-status').textContent = `${sub.plan} Plan`;
+        document.getElementById('subscription-status').className = `status-badge ${sub.plan}`;
+
+        document.getElementById('current-plan').innerHTML = `
+            <span class="plan-name">${sub.plan} Plan</span>
+            <span class="plan-price">đ${sub.amount}/month</span>
+        `;
+
+        document.getElementById('plan-status').textContent = sub.status || 'Active';
+        document.getElementById('plan-expiry').textContent = sub.end_date
+            ? Helpers.formatDate(new Date(sub.end_date))
+            : '--';
+
+        const features = getPlanFeatures(sub.plan);
+        document.getElementById('plan-features').innerHTML =
+            features.map(feature => `<li>${feature}</li>`).join('');
+    }
+}
+
+async function loadWatchlist(token) {
+    const watchlistContent = document.getElementById('watchlist-content');
+    const watchlistCount = document.getElementById('watchlist-count');
+
+    try {
+        const res = await fetch('/api/watchlist/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!data.success) {
+            watchlistContent.innerHTML = `<p>Error loading watchlist</p>`;
+            return;
+        }
+
+        const watchlist = data.watchlist || [];
+        watchlistCount.textContent = `${watchlist.length} stock${watchlist.length !== 1 ? 's' : ''}`;
+
+        if (!watchlist.length) {
+            watchlistContent.innerHTML = `
+                <div class="empty-state">
+                    <p>Your watchlist is empty</p>
+                    <a href="/user/stocks" class="btn btn-primary">Browse Stocks</a>
+                </div>`;
+            return;
+        }
+
+        watchlistContent.innerHTML = watchlist.map(stock => {
+            const changeClass = stock.change != null && stock.change >= 0 ? 'positive' : 'negative';
+            const changeSymbol = stock.change != null && stock.change >= 0 ? '+' : '';
+            return `
+            <div class="watchlist-item">
+                <div class="stock-info">
+                    <span class="stock-symbol">${stock.symbol}</span>
+                </div>
+                <div class="stock-price">
+                    <span class="price">${stock.close_price != null ? Helpers.formatCurrency(stock.close_price) : '--'}</span>
+                    <span class="change ${changeClass}">
+                        ${stock.change != null ? changeSymbol + stock.change.toFixed(2) + '%' : '--'}
+                    </span>
+                </div>
+                <div class="stock-actions">
+                    <button onclick="window.location.href='/user/stock_detail/?symbol=${stock.symbol}'" 
+                            class="btn btn-outline btn-small">
+                        View
+                    </button>
+                    <button onclick="removeFromWatchlist('${stock.symbol}')" class="btn btn-danger btn-small">Remove</button>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (err) {
+        console.error('Error loading watchlist:', err);
+    }
+}
+
+async function loadSubscriptionHistory(token) {
+    const listContainer = document.getElementById("subscription-list");
+
+    try {
+        const res = await fetch("/api/subscription/history/", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!data.success || !data.history?.length) {
+            listContainer.innerHTML = `<p>No subscription history found.</p>`;
+            return;
+        }
+
+        const sortedHistory = data.history.sort((a, b) => {
+            return new Date(b.purchase_date) - new Date(a.purchase_date);
+        });
+
+        listContainer.innerHTML = "";
+        sortedHistory.forEach(sub => {
+            const statusClass =
+                sub.status?.toLowerCase() === "active" ? "status-active" :
+                sub.status?.toLowerCase() === "expired" ? "status-expired" :
+                "status-pending";
+
+            const item = document.createElement("div");
+            item.className = "subscription-item";
+            item.innerHTML = `
+                <div class="subscription-icon">💳</div>
+                <div class="subscription-details">
+                    <span class="subscription-plan">${sub.plan_name}</span>
+                    <span class="subscription-date">${Helpers.formatDate(new Date(sub.purchase_date))}</span>
+                </div>
+                <div class="subscription-status ${statusClass}">
+                    ${sub.status}
+                </div>
+            `;
+            listContainer.appendChild(item);
+        });
+    } catch (err) {
+        console.error("Error loading subscription history:", err);
+        listContainer.innerHTML = `<p>Failed to load subscription history.</p>`;
+    }
+}
+
+
+function loadUserStats(user) {
+    const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+    document.getElementById('stocks-watched').textContent = watchlist.length;
+    document.getElementById('articles-read').textContent = Math.floor(Math.random() * 20) + 1;
+    document.getElementById('alerts-set').textContent = watchlist.length;
+
+    if (user && user.created_at) {
+        const joinDate = new Date(user.created_at);
+        const today = new Date();
+        const diffDays = Math.ceil((today - joinDate) / (1000*60*60*24));
+        document.getElementById('days-active').textContent = diffDays;
+    }
+}
+
+function getPlanFeatures(plan) {
+    const features = {
+        basic: [
+            'Basic stock quotes (15-min delay)',
+            'Market news access',
+            'Basic watchlist (10 stocks)',
+            'Community support'
+        ],
+        premium: [
+            'Real-time stock quotes',
+            'Advanced stock screening',
+            'Extended watchlist (100 stocks)',
+            'Price alerts',
+            'Portfolio tracking',
+            'Email support'
+        ],
+        professional: [
+            'Everything in Premium',
+            'Premium research reports',
+            'Unlimited watchlists',
+            'API access',
+            'Custom alerts',
+            'Priority support'
+        ]
+    };
+    return features[plan] || features.basic;
+}
+
+function editProfile() {
+  // Đổi tên hành động → mở modal đổi mật khẩu
+  document.getElementById("change-password-modal").style.display = "flex";
+}
+
+function closeChangePasswordModal() {
+  document.getElementById("change-password-modal").style.display = "none";
+}
+
+document.getElementById("change-password-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  const currentPassword = document.getElementById("current-password").value.trim();
+  const newPassword = document.getElementById("new-password").value.trim();
+  const confirmPassword = document.getElementById("confirm-password").value.trim();
+
+  if (newPassword !== confirmPassword) {
+    alert("New passwords do not match!");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/user/change_password/", {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Password changed successfully!");
+      closeChangePasswordModal();
+      document.getElementById("change-password-form").reset();
+    } else {
+      alert("Failed to change password: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("Error changing password:", err);
+    alert("An error occurred while changing password.");
+  }
+});
+
+</script>
+
+
+{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,593 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Subscription{% endblock %}
+
+{% block content %}
+
+<main>
+    <section class="page-header">
+        <div class="container">
+            <h1>Choose Your Plan</h1>
+            <p>Unlock premium features and advanced analytics for better investment decisions</p>
+        </div>
+    </section>
+
+    <section class="pricing-section">
+        <div class="container">
+            <div class="pricing-toggle">
+                <span class="toggle-label">Monthly</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="pricing-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Annual <span class="save-badge">Save 20%</span></span>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Basic</h3>
+                        <div class="pricing-description">Perfect for beginners</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" data-monthly="0" data-annual="0">$0</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li class="feature-included">Real-time stock quotes (15-min delay)</li>
+                        <li class="feature-included">Basic stock screening</li>
+                        <li class="feature-included">Market news and analysis</li>
+                        <li class="feature-included">Watchlist up to 10 stocks</li>
+                        <li class="feature-excluded">Advanced charts and indicators</li>
+                        <li class="feature-excluded">Real-time alerts</li>
+                        <li class="feature-excluded">Portfolio analytics</li>
+                        <li class="feature-excluded">Premium research reports</li>
+                    </ul>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3>Premium</h3>
+                        <div class="pricing-description">For serious investors</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" data-monthly="50000" data-annual="650000">đ50000</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li class="feature-included">Everything in Basic</li>
+                        <li class="feature-included">Real-time stock quotes</li>
+                        <li class="feature-included">Advanced stock screening</li>
+                        <li class="feature-included">Advanced charts with 50+ indicators</li>
+                        <li class="feature-included">Real-time price alerts</li>
+                        <li class="feature-included">Watchlist up to 100 stocks</li>
+                        <li class="feature-included">Portfolio performance tracking</li>
+                        <li class="feature-excluded">Premium research reports</li>
+                    </ul>
+                    <button class="btn btn-primary btn-large" onclick="subscribe('premium')">Start Premium</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <div class="pricing-description">For professional traders</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" data-monthly="100000" data-annual="900000">đ100000</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li class="feature-included">Everything in Premium</li>
+                        <li class="feature-included">Premium research reports</li>
+                        <li class="feature-included">Advanced portfolio analytics</li>
+                        <li class="feature-included">Custom alerts and notifications</li>
+                        <li class="feature-included">Unlimited watchlists</li>
+                        <li class="feature-included">API access for data integration</li>
+                        <li class="feature-included">Priority customer support</li>
+                        <li class="feature-included">Institutional-grade market data</li>
+                    </ul>
+                    <button class="btn btn-primary btn-large" onclick="subscribe('professional')">Go
+                        Professional</button>
+                </div>
+            </div>
+
+            <div class="pricing-guarantee">
+                <div class="guarantee-content">
+                    <h4>30-Day Money-Back Guarantee</h4>
+                    <p>Not satisfied? Get a full refund within 30 days, no questions asked.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-comparison">
+        <div class="container">
+            <h2 class="section-title">Feature Comparison</h2>
+            <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Features</th>
+                            <th>Basic</th>
+                            <th>Premium</th>
+                            <th>Professional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Stock Quotes</td>
+                            <td>15-min delay</td>
+                            <td>Real-time</td>
+                            <td>Real-time</td>
+                        </tr>
+                        <tr>
+                            <td>Watchlist Stocks</td>
+                            <td>10</td>
+                            <td>100</td>
+                            <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>Chart Indicators</td>
+                            <td>Basic (5)</td>
+                            <td>Advanced (50+)</td>
+                            <td>Professional (100+)</td>
+                        </tr>
+                        <tr>
+                            <td>Price Alerts</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                            <td>✅ Custom</td>
+                        </tr>
+                        <tr>
+                            <td>Portfolio Analytics</td>
+                            <td>❌</td>
+                            <td>Basic</td>
+                            <td>Advanced</td>
+                        </tr>
+                        <tr>
+                            <td>Research Reports</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>API Access</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Customer Support</td>
+                            <td>Community</td>
+                            <td>Email</td>
+                            <td>Priority</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>Can I change my plan anytime?</h4>
+                    <p>Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and
+                        we'll prorate the billing accordingly.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is there a free trial available?</h4>
+                    <p>Yes, all paid plans come with a 14-day free trial. No credit card required to start your trial.
+                    </p>
+                </div>
+                <div class="faq-item">
+                    <h4>What payment methods do you accept?</h4>
+                    <p>We accept all major credit cards, PayPal, and bank transfers for annual subscriptions.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I cancel my subscription?</h4>
+                    <p>Yes, you can cancel your subscription at any time from your account settings. Your access
+                        continues until the end of your billing period.</p>
+                </div>
+            </div>
+        </div>
+        <div id="paymentPopup" class="popup-overlay" style="display:none;">
+            <div class="popup-content">
+                <h3 id="popup-title"></h3>
+                <p id="popup-description"></p>
+                <p><strong>Payment Method:</strong> ZALOPAY</p>
+                <button id="payNowBtn" class="btn btn-primary">Thanh toán</button>
+                <button class="btn btn-outline" onclick="closePopup()">Hủy</button>
+            </div>
+        </div>
+
+        <!-- Popup thông báo kết quả thanh toán -->
+        <div id="paymentResultPopup" class="popup-overlay" style="display:none;">
+            <div class="popup-content">
+                <h2 id="payment-result-title"></h2>
+                <p id="payment-result-description"></p>
+                <button onclick="closePaymentResultPopup()">Đóng</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    /* Overlay mờ phía sau */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    /* Hộp nội dung popup */
+    .popup-content {
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        width: 360px;
+        max-width: 95%;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    /* Tiêu đề */
+    #payment-result-title {
+        font-size: 25px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    /* Nội dung mô tả */
+    #payment-result-description {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    /* Nút đóng */
+    .popup-content button {
+        background: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 18px;
+        font-size: 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .popup-content button:hover {
+        background: #0056b3;
+    }
+
+    /* Hiệu ứng hiện popup */
+    @keyframes fadeInUp {
+        from {
+            transform: translateY(40px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Style chung cho toast */
+    .toast {
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        setupPricingToggle();
+        updateCurrentPlan();
+        // --- Check payment status ---
+        const status = getQueryParam("status");
+        const plan = getQueryParam("plan") || "Unknown";
+        const amount = getQueryParam("amount") || "0";
+        const startDate = getQueryParam("start_date") || new Date().toLocaleDateString();
+        const endDate = getQueryParam("end_date") || "";
+
+        if (status === "1") {
+            showPaymentResult(true, plan, amount, startDate, endDate);
+        } else if (status === "0") {
+            showPaymentResult(false, plan, amount, startDate, endDate);
+        }
+
+        // --- Gắn event popup thanh toán ---
+
+        // Premium
+        const premiumBtn = document.querySelector("button[onclick=\"subscribe('premium')\"]");
+        if (premiumBtn) {
+            premiumBtn.onclick = () => {
+                const token = localStorage.getItem("token");  // dùng "token" theo base_layout
+                if (!token) {
+                    showToast("⚠️ You need to log in to continue", "warning");
+                    return;
+                }
+
+                const priceEl = premiumBtn.closest(".pricing-card").querySelector(".price-amount");
+                const price = parseInt(priceEl.textContent.replace(/[^\d]/g, "")) || 0;
+                showPaymentPopup("Premium", price);
+            };
+        }
+
+        // Professional
+        const proBtn = document.querySelector("button[onclick=\"subscribe('professional')\"]");
+        if (proBtn) {
+            proBtn.onclick = () => {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    showToast("⚠️ You need to log in to continue", "warning");
+                    return;
+                }
+
+                const priceEl = proBtn.closest(".pricing-card").querySelector(".price-amount");
+                const price = parseInt(priceEl.textContent.replace(/[^\d]/g, "")) || 0;
+                showPaymentPopup("Professional", price);
+            };
+        }
+
+
+    });
+
+    function setupPricingToggle() {
+        const toggle = document.getElementById('pricing-toggle');
+        const priceElements = document.querySelectorAll('.price-amount');
+
+        toggle.addEventListener('change', function () {
+            const isAnnual = this.checked;
+
+            priceElements.forEach(element => {
+                const monthlyPrice = element.getAttribute('data-monthly');
+                const annualPrice = element.getAttribute('data-annual');
+                const price = isAnnual ? annualPrice : monthlyPrice;
+                element.textContent = price === '0' ? 'đ0' : 'đ' + price;
+            });
+
+            // Update period text
+            const periodElements = document.querySelectorAll('.price-period');
+            periodElements.forEach(element => {
+                element.textContent = isAnnual ? '/year' : '/month';
+            });
+        });
+    }
+
+    function updateCurrentPlan() {
+        const user = Auth.getCurrentUser();
+        if (!user || !user.subscription) return;
+
+        const currentPlan = user.subscription.plan;
+        const buttons = document.querySelectorAll('.pricing-card button');
+
+        buttons.forEach((button, index) => {
+            const plans = ['basic', 'premium', 'professional'];
+            if (plans[index] === currentPlan) {
+                button.textContent = 'Current Plan';
+                button.disabled = true;
+                button.classList.add('current-plan');
+            }
+        });
+    }
+
+    async function subscribe(plan) {
+        try {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                // Nếu chưa có token => chưa login
+                window.location.href = "/user/login/";
+                return;
+            }
+
+            // Gọi API check user
+            const res = await fetch("/api/auth/current_user/", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                localStorage.removeItem("authToken"); // token hết hạn
+                window.location.href = "/user/login/";
+                return;
+            }
+
+            const { user } = await res.json();
+
+            const planDetails = {
+                basic: { name: "Basic", price: 0 },
+                premium: { name: "Premium", price: 50000 },
+                professional: { name: "Professional", price: 100000 }
+            };
+            const selectedPlan = planDetails[plan];
+
+            const confirmMessage =
+                selectedPlan.price === 0
+                    ? `Are you sure you want to activate the ${selectedPlan.name} plan?`
+                    : `Are you sure you want to subscribe to the ${selectedPlan.name} plan for $${selectedPlan.price}/month?`;
+
+            showPopup("Confirm Subscription", confirmMessage, async () => {
+                const subRes = await fetch("/api/subscribe/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        plan: plan,
+                        cycle: "monthly"
+                    })
+                });
+
+                const result = await subRes.json();
+
+                if (result.status === "ok") {
+                    showPopup("Success", `Successfully subscribed to ${selectedPlan.name} plan!`, () => {
+                        window.location.href = "/personal/";
+                    });
+                } else {
+                    showPopup("Error", result.message || "Subscription failed!");
+                }
+            });
+        } catch (error) {
+            console.error("Error in subscribe:", error);
+            showPopup("Error", "Something went wrong. Please try again later.");
+        }
+    }
+
+    function showPaymentPopup(plan, price) {
+        document.getElementById("popup-title").textContent = `Xác nhận gói ${plan}`;
+        document.getElementById("popup-description").textContent =
+            `Bạn đã chọn gói ${plan} với giá ${price}đ/tháng. Vui lòng xác nhận thanh toán bằng ZALOPAY.`;
+        document.getElementById("paymentPopup").style.display = "flex";
+
+        // Khi nhấn nút Thanh toán
+        document.getElementById("payNowBtn").onclick = async function () {
+            try {
+                let res = await fetch("/api/payment/zalopay/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("token") // nếu cần login
+                    },
+                    body: JSON.stringify({ plan: plan, amount: price })
+                });
+
+                if (!res.ok) {
+                    let text = await res.text();
+                    console.error("❌ Backend error:", text);
+                    alert("Không tạo được thanh toán. Code: " + res.status);
+                    return;
+                }
+
+                let data = await res.json();
+                console.log("Zalopay response:", data);
+
+                if (data.success && data.url) {
+                    // 👉 Chuyển user sang trang thanh toán Zalopay
+                    window.location.href = data.url;
+                } else {
+                    alert("Thanh toán thất bại: " + (data.error || ""));
+                }
+            } catch (err) {
+                console.error("Payment error:", err);
+                alert("Có lỗi khi gọi thanh toán");
+            }
+        }
+    }
+
+
+
+    function closePopup() {
+        document.getElementById("paymentPopup").style.display = "none";
+    }
+
+
+    function showPaymentResult(success, plan, amount, startDate, endDate) {
+        const popup = document.getElementById("paymentResultPopup");
+        const title = document.getElementById("payment-result-title");
+        const desc = document.getElementById("payment-result-description");
+
+        if (success) {
+            title.textContent = "✅ Payment Successful";
+            desc.innerHTML = `
+           
+            Amount: ${amount}<br>
+            Start_Date: ${startDate}<br>
+            
+        `;
+        } else {
+            title.textContent = "❌ Payment Failed";
+            desc.textContent = "Your payment could not be processed. Please try again.";
+        }
+
+        popup.style.display = "flex";
+    }
+
+    function closePaymentResultPopup() {
+        document.getElementById("paymentResultPopup").style.display = "none";
+    }
+
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+
+        // Style
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.padding = '10px 16px';
+        toast.style.borderRadius = '8px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        toast.style.zIndex = '10000';
+        toast.style.fontSize = '0.9rem';
+        toast.style.fontWeight = '500';
+        toast.style.maxWidth = '300px';
+        toast.style.wordWrap = 'break-word';
+        toast.style.color = '#fff';
+
+        // Color theo type
+        switch (type) {
+            case 'success':
+                toast.style.backgroundColor = '#16a34a'; // xanh
+                break;
+            case 'error':
+                toast.style.backgroundColor = '#dc2626'; // đỏ
+                break;
+            case 'warning':
+                toast.style.backgroundColor = '#f59e0b'; // vàng
+                break;
+            default:
+                toast.style.backgroundColor = '#2563eb'; // xanh dương
+        }
+
+        document.body.appendChild(toast);
+
+        // Hiệu ứng show
+        setTimeout(() => toast.classList.add("show"), 50);
+
+        // Auto remove sau 3s
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+</script>
+{% endblock %}
+</body>
+
+</html>

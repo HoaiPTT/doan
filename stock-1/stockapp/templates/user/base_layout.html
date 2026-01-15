@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockHub{% endblock %}</title>
+    <link rel="stylesheet" href="/static/user/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</head>
+
+<body>
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="/user/home" class="nav-logo">StockHub</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/user/home" class="nav-link">Home</a>
+                <a href="/user/stocks" class="nav-link">Stocks</a>
+                <a href="/user/news" class="nav-link">News</a>
+                <a href="/user/subscription" class="nav-link">Subscription</a>
+
+                <!-- Khi login xong sẽ hiện -->
+                <a href="/user/personal" id="nav-profile" class="nav-profile" style="display:none;">
+                    <img src="/static/user/images/avt.jpg" alt="avatar" class="nav-avatar">
+                    <span class="nav-username"></span>
+                </a>
+                <a href="#" id="nav-logout" class="btn btn-outline" style="display:none;">Logout</a>
+                <!-- Khi chưa login thì hiện -->
+                <div class="nav-auth">
+                    <a href="/user/login" id="nav-login" class="btn btn-outline">Login</a>
+                    <a href="/user/register" id="nav-signup" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+<!-- ===== AI CHATBOT WIDGET ===== -->
+<div id="chatbot-toggle">💬</div>
+
+<div id="chatbot-box" class="chatbot-hidden">
+    <div class="chatbot-header">
+        <span>🤖 StockHub Assistant</span>
+        <button id="chatbot-close">✕</button>
+    </div>
+
+    <div id="chatbot-messages">
+        <div class="bot-message">
+            Xin chào 👋 Tôi có thể hỗ trợ bạn về cổ phiếu, thị trường và tin tức.
+        </div>
+        <div id="chatbot-suggestions" class="chatbot-suggestions">
+    <button data-question="Cổ phiếu FPT đang có xu hướng thế nào?">📈 Xu hướng cổ phiếu</button>
+    <button data-question="Thị trường hôm nay tăng hay giảm?">📊 Thị trường hôm nay</button>
+    <button data-question="Có tin tức nổi bật nào không?">📰 Tin tức nổi bật</button>
+</div>
+
+    </div>
+
+    <div class="chatbot-input">
+        <input type="text" id="chatbot-text" placeholder="Nhập câu hỏi của bạn..." />
+        <button id="chatbot-send">➤</button>
+    </div>
+</div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>StockHub</h3>
+                    <p>Your trusted partner in stock market investments</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Products</h4>
+                        <a href="/user/stocks">Stock Screener</a>
+                        <a href="/user/news">Market News</a>
+                        <a href="/user/subscription">Premium Plans</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Company</h4>
+                        <a href="#about">About Us</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#privacy">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StockHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts chung -->
+    <script src="/static/user/js/helpers.js"></script>
+    <script src="/static/user/js/api.js"></script>
+    <script src="/static/user/js/auth.js"></script>
+    <script src="/static/user/js/charts.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+    <script src="/static/user/js/main.js"></script>
+    <style>
+        /* Avatar + tên trong menu */
+        .nav-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .nav-profile:hover {
+            background: #e5e5e5;
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+
+        .nav-username {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        #nav-logout {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background: #d9534f;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+    text-decoration: none;
+}
+#nav-logout:hover {
+    background: #c9302c;
+}
+/* ===== CHATBOT BUTTON ===== */
+#chatbot-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+
+/* ===== CHATBOX ===== */
+#chatbot-box {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 340px;
+    height: 440px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+.chatbot-hidden {
+    display: none !important;
+}
+
+/* Header */
+.chatbot-header {
+    background: #2563eb;
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.chatbot-header button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Messages */
+#chatbot-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #f9fafb;
+}
+
+.bot-message,
+.user-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    max-width: 85%;
+}
+
+.bot-message {
+    background: #e5e7eb;
+    align-self: flex-start;
+}
+
+.user-message {
+    background: #2563eb;
+    color: #fff;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+/* Input */
+.chatbot-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+}
+
+.chatbot-input button {
+    padding: 0 16px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.chatbot-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.chatbot-suggestions button {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    border: 1px solid #2563eb;
+    background: #fff;
+    color: #2563eb;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.chatbot-suggestions button:hover {
+    background: #2563eb;
+    color: #fff;
+}
+.upgrade-box {
+    background: #fff7ed;
+    border: 1px solid #f97316;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.upgrade-box a {
+    display: inline-block;
+    margin-top: 6px;
+    color: #2563eb;
+    font-weight: 600;
+}
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('currentUser');
+            const currentUser = userStr ? JSON.parse(userStr) : null;
+
+
+            const name = currentUser.name;
+
+
+            const profileLink = document.getElementById('nav-profile');
+            const usernameSpan = profileLink.querySelector('.nav-username');
+            const loginBtn = document.getElementById('nav-login');
+            const signupBtn = document.getElementById('nav-signup');
+
+            if (token && name) {
+                // Đã login → hiện avatar + tên
+                profileLink.style.display = "flex";
+                usernameSpan.textContent = name;
+                loginBtn.style.display = "none";
+                signupBtn.style.display = "none";
+            } else {
+                // Chưa login → hiện login/signup
+                profileLink.style.display = "none";
+                loginBtn.style.display = "inline-block";
+                signupBtn.style.display = "inline-block";
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('currentUser');
+    const currentUser = userStr ? JSON.parse(userStr) : null;
+
+    const name = currentUser?.name;
+
+    const profileLink = document.getElementById('nav-profile');
+    const usernameSpan = profileLink.querySelector('.nav-username');
+    const loginBtn = document.getElementById('nav-login');
+    const signupBtn = document.getElementById('nav-signup');
+    const logoutBtn = document.getElementById('nav-logout');
+
+    if (token && name) {
+        // Đã login → hiện avatar + tên + logout
+        profileLink.style.display = "flex";
+        usernameSpan.textContent = name;
+        loginBtn.style.display = "none";
+        signupBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+    } else {
+        // Chưa login → hiện login/signup
+        profileLink.style.display = "none";
+        loginBtn.style.display = "inline-block";
+        signupBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+    }
+
+    // Xử lý logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("currentUser");
+            window.location.href = "/user/login"; // chuyển về login
+        });
+    }
+   
+});
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const toggleBtn = document.getElementById("chatbot-toggle");
+    const chatBox = document.getElementById("chatbot-box");
+    const closeBtn = document.getElementById("chatbot-close");
+    const sendBtn = document.getElementById("chatbot-send");
+    const input = document.getElementById("chatbot-text");
+    const messages = document.getElementById("chatbot-messages");
+    const suggestions = document.getElementById("chatbot-suggestions");
+
+    if (!toggleBtn || !chatBox) return;
+
+    // Mặc định đóng
+    chatBox.classList.add("chatbot-hidden");
+
+    // ===== LẤY PLAN USER =====
+    let userPlan = "BASIC";
+
+    try {
+        const res = await fetch("/api/userinfo/", {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            userPlan = data.user?.subscription?.plan?.toUpperCase() || "BASIC";
+        }
+    } catch (e) {
+        console.warn("Không lấy được gói user");
+    }
+
+    const canUseAI = userPlan === "PROFESSIONAL" || userPlan === "PREMIUM";
+
+    // ===== TOGGLE CHAT =====
+    toggleBtn.addEventListener("click", () => {
+        chatBox.classList.toggle("chatbot-hidden");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        chatBox.classList.add("chatbot-hidden");
+    });
+
+    // ===== SUGGESTION =====
+    if (suggestions) {
+        suggestions.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                input.value = btn.dataset.question;
+                sendMessage();
+            });
+        });
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", e => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    function addMessage(text, type) {
+        const div = document.createElement("div");
+        div.className = type === "user" ? "user-message" : "bot-message";
+        div.innerText = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function showUpgrade() {
+        const div = document.createElement("div");
+        div.className = "upgrade-box";
+        div.innerHTML = `
+            🔒 Gói hiện tại: <b>${userPlan}</b><br/>
+            <a href="/user/subscription">👉 Nâng cấp Professional / Premium</a>
+        `;
+        messages.appendChild(div);
+    }
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        if (suggestions) suggestions.remove();
+
+        addMessage(text, "user");
+        input.value = "";
+
+        if (!canUseAI) {
+            addMessage("AI chỉ khả dụng cho gói trả phí.", "bot");
+            showUpgrade();
+            return;
+        }
+
+        const loading = document.createElement("div");
+        loading.className = "bot-message";
+        loading.innerText = "🤖 Đang phân tích...";
+        messages.appendChild(loading);
+
+        try {
+            const res = await fetch("/api/ai/chat/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await res.json();
+            loading.remove();
+            addMessage(data.answer || "Không có phản hồi.", "bot");
+        } catch {
+            loading.remove();
+            addMessage("❌ Lỗi kết nối AI.", "bot");
+        }
+    }
+});
+
+
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+{% extends 'admin/base_layout.html' %}
+{% block content %}
+<section class="section">
+  <div class="container-fluid">
+    
+  </div>
+  <div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+      <div class="card card-statistic-1">
+        <div class="card-icon bg-primary">
+          <i class="far fa-building"></i>
+        </div>
+        <div class="card-wrap">
+          <div class="card-header">
+            <h4>Total Companies</h4>
+          </div>
+          <div class="card-body" id="total-companies">
+            {{ dashboard.total_companies }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+      <div class="card card-statistic-1">
+        <div class="card-icon bg-info">
+          <i class="far fa-user"></i>
+        </div>
+        <div class="card-wrap">
+          <div class="card-header">
+            <h4>Total Users</h4>
+          </div>
+          <div class="card-body" id="total-users">
+            {{ dashboard.total_users }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+      <div class="card card-statistic-1">
+        <div class="card-icon bg-warning">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="card-wrap">
+          <div class="card-header">
+            <h4>Premium Users</h4>
+          </div>
+          <div class="card-body" id="total-premium">
+            {{ dashboard.total_premium }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+      <div class="card card-statistic-1">
+        <div class="card-icon bg-success">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="card-wrap">
+          <div class="card-header">
+            <h4>Professional Users</h4>
+          </div>
+          <div class="card-body" id="total-professional">
+            {{ dashboard.total_professional }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-9 col-md-12 col-12 col-sm-12">
+        <div class="card">
+          <div class="card-header">
+            <h4>Statistics</h4>
+            <div class="card-header-action">
+              <span class="report-label">Month</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="myChart" height="182"></canvas>
+            <div class="statistic-details mt-sm-4">
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-12 col-12 col-sm-12">
+        <div class="card" style="max-height: 500px; overflow-y: auto;">
+          <div class="card-header">
+            <h4>Recent Activities</h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled list-unstyled-border" id="recentSubscriptions">
+              {% for sub in recent_subs %}
+              <li class="media">
+                <img class="mr-3 rounded-circle" width="50" src="/static/admin/assets/img/avatar/avatar-1.png"
+                  alt="avatar">
+                <div class="media-body">
+                  <div class="float-right">{{ sub.time }}</div>
+                  <div class="media-title">{{ sub.name }}</div>
+                  <span class="text-small text-muted">Đăng ký gói: <strong>{{ sub.plan }}</strong></span>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pt-1 pb-1">
+        <a href="#" class="btn btn-primary btn-lg btn-round">
+          View All
+        </a>
+      </div>
+    </div>
+  
+  
+  
+</section>
+{% endblock %}
+
+
+
+<style>
+  .section .container-fluid,
+.section .row {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.card {
+  width: 100%;
+}
+
+  .report-label {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #4729df;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+  }
+/* Recent list scroll */
+#recentSubscriptions {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+#recentSubscriptions li.media {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#recentSubscriptions .media-body {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card.h-100 {
+  height: 100%;
+}
+
+</style>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+let chartInstance = null;
+const ctx = document.getElementById('myChart').getContext('2d');
+
+    
+      function updateChart(labels, revenues) {
+        if (chartInstance) {
+          chartInstance.data.labels = labels;
+          chartInstance.data.datasets[0].data = revenues;
+          chartInstance.update();
+          return;
+        }
+
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Revenue',
+              data: revenues,
+              borderWidth: 3,
+              borderColor: '#6777ef',
+              backgroundColor: 'rgba(103, 119, 239, 0.2)',
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#6777ef',
+              pointRadius: 4
+            }]
+          },
+          options: {
+            legend: { display: false },
+            scales: {
+              yAxes: [{ ticks: { beginAtZero: true }, gridLines: { color: '#f2f2f2' } }],
+              xAxes: [{ gridLines: { color: '#fbfbfb' } }]
+            }
+          }
+        });
+      }
+
+
+    }
+
+  );
+</script>

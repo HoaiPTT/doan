@@ -1,0 +1,250 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Company{% endblock %}
+
+{% block content %}
+    <main>
+        <div class="loading" id="main-loading">
+            <div class="spinner"></div>
+            <p>Loading company profile...</p>
+        </div>
+
+        <div id="company-content" style="display: none;">
+            <section class="company-header">
+                <div class="container">
+                    <div class="company-overview">
+                        <div class="company-logo">
+                            <img id="company-logo" src="https://images.pexels.com/photos/7413916/pexels-photo-7413916.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Company Logo">
+                        </div>
+                        <div class="company-main-info">
+                            <h1 id="company-name">Company Name</h1>
+                            <div class="company-meta">
+                                <span id="company-symbol">SYMBOL</span>
+                                <span class="separator">•</span>
+                                <span id="company-exchange">Exchange</span>
+                                <span class="separator">•</span>
+                                <span id="company-sector">Sector</span>
+                            </div>
+                            <p class="company-tagline" id="company-tagline">Company tagline or mission statement</p>
+                        </div>
+                        <div class="company-actions">
+                            <a href="{% url 'stocks' %}" class="btn btn-primary" id="stock-detail-link">View Stock</a>
+                            <button class="btn btn-outline" onclick="addToWatchlist()">Add to Watchlist</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="company-details">
+                <div class="container">
+                    <div class="details-layout">
+                        <div class="main-content">
+                            <div class="company-card">
+                                <h3>About the Company</h3>
+                                <div class="company-description">
+                                    <p id="full-description">Loading company description...</p>
+                                </div>
+                            </div>
+
+                            <div class="company-card">
+                                <h3>Financial Highlights</h3>
+                                <div class="financial-grid">
+                                    <div class="financial-item">
+                                        <span class="financial-label">Revenue (TTM)</span>
+                                        <span class="financial-value" id="revenue">--</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <span class="financial-label">Net Income (TTM)</span>
+                                        <span class="financial-value" id="net-income">--</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <span class="financial-label">Gross Margin</span>
+                                        <span class="financial-value" id="gross-margin">--</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <span class="financial-label">Operating Margin</span>
+                                        <span class="financial-value" id="operating-margin">--</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <span class="financial-label">Return on Equity</span>
+                                        <span class="financial-value" id="roe">--</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <span class="financial-label">Return on Assets</span>
+                                        <span class="financial-value" id="roa">--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+
+                        <div class="sidebar">
+                            <div class="company-card">
+                                <h3>Company Information</h3>
+                                <div class="info-list">
+                                    <div class="info-item">
+                                        <span class="info-label">Founded</span>
+                                        <span class="info-value" id="founded">--</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Headquarters</span>
+                                        <span class="info-value" id="headquarters">--</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Employees</span>
+                                        <span class="info-value" id="employees">--</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Industry</span>
+                                        <span class="info-value" id="industry">--</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Website</span>
+                                        <a href="#" class="info-link" id="website" target="_blank">--</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="company-card">
+                                <h3>Stock Performance</h3>
+                                <div class="performance-items">
+                                    <div class="performance-item">
+                                        <span class="performance-label">Current Price</span>
+                                        <span class="performance-value" id="current-price">--</span>
+                                    </div>
+                                    <div class="performance-item">
+                                        <span class="performance-label">Day Change</span>
+                                        <span class="performance-value" id="day-change">--</span>
+                                    </div>
+                                    <div class="performance-item">
+                                        <span class="performance-label">52-Week High</span>
+                                        <span class="performance-value" id="week-high">--</span>
+                                    </div>
+                                    <div class="performance-item">
+                                        <span class="performance-label">52-Week Low</span>
+                                        <span class="performance-value" id="week-low">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+   {% endblock %}
+
+{% block extra_scripts %}
+ 
+<script>
+let currentCompany = null;
+
+document.addEventListener('DOMContentLoaded', initializeCompanyProfile);
+
+async function initializeCompanyProfile() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const symbol = urlParams.get('symbol');
+
+    if (!symbol) {
+        alert('No company symbol provided');
+        window.location.href = 'stocks.html';
+        return;
+    }
+
+    try {
+        currentCompany = await getCompanyProfile(symbol);
+        displayCompanyInfo(currentCompany);
+
+        document.getElementById('main-loading').style.display = 'none';
+        document.getElementById('company-content').style.display = 'block';
+    } catch (error) {
+        console.error('Error loading company profile:', error);
+        alert('Error loading company data');
+    }
+}
+
+async function getCompanyProfile(symbol) {
+    try {
+        const res = await fetch(`/api/company/?symbol=${symbol}`);
+        const data = await res.json();
+
+        console.log("API response for symbol", symbol, data);
+
+        if (!data.success || !data.company_info) {
+            throw new Error("Company not found in backend");
+        }
+        return data.company_info; // <-- dùng company_info
+    } catch (err) {
+        console.error("Error fetching company profile:", err);
+        throw err;
+    }
+}
+
+function displayCompanyInfo(company) {
+    // Header
+    document.getElementById('company-name').textContent = company.company_name || company.symbol;
+    document.getElementById('company-symbol').textContent = company.symbol;
+    document.getElementById('company-exchange').textContent = company.exchange;
+    document.getElementById('company-sector').textContent = company.industry;
+    document.getElementById('company-tagline').textContent = company.tagline || '';
+
+    // Description
+    document.getElementById('full-description').textContent = company.profile || 'No description available.';
+
+    // Financials (fake vì DB không có)
+    document.getElementById('revenue').textContent = Helpers.formatCurrency(Math.floor(Math.random() * 1e12), true);
+    document.getElementById('net-income').textContent = Helpers.formatCurrency(Math.floor(Math.random() * 1e11), true);
+    document.getElementById('gross-margin').textContent = (Math.random() * 60 + 20).toFixed(2) + '%';
+    document.getElementById('operating-margin').textContent = (Math.random() * 40 + 10).toFixed(2) + '%';
+    document.getElementById('roe').textContent = (Math.random() * 20 + 5).toFixed(2) + '%';
+    document.getElementById('roa').textContent = (Math.random() * 10 + 3).toFixed(2) + '%';
+
+    // Stock performance (fake nếu không có)
+    const price = company.close_price ?? (Math.random() * 1000);
+    document.getElementById('current-price').textContent = Helpers.formatCurrency(price);
+
+    const change = company.change ?? (Math.random() * 20 - 10);
+    const changePercent = company.changePercent ?? (change / price * 100);
+    const changeClass = change >= 0 ? 'positive' : 'negative';
+    const changeSymbol = change >= 0 ? '+' : '';
+    document.getElementById('day-change').textContent = `${changeSymbol}${Helpers.formatCurrency(change)} (${changeSymbol}${changePercent.toFixed(2)}%)`;
+    document.getElementById('day-change').className = `performance-value ${changeClass}`;
+
+    document.getElementById('week-high').textContent = Helpers.formatCurrency(company.high52w ?? price * 1.2);
+    document.getElementById('week-low').textContent = Helpers.formatCurrency(company.low52w ?? price * 0.8);
+
+    // Other info
+// Nếu DB không có, fake dữ liệu
+document.getElementById('founded').textContent = company.founded || (1990 + Math.floor(Math.random() * 30)); // 1990–2019
+document.getElementById('headquarters').textContent = company.headquarters || 'Hanoi, Vietnam';
+document.getElementById('employees').textContent = Helpers.formatNumber(company.employees ?? (100 + Math.floor(Math.random() * 5000)));
+document.getElementById('website').textContent = company.website || `www.${company.symbol.toLowerCase()}.com`;
+document.getElementById('website').href = company.website?.startsWith('http') ? company.website : `https://${company.symbol.toLowerCase()}.com`;
+
+}
+
+
+function addToWatchlist() {
+    if (!currentCompany) return;
+    const user = Auth.getCurrentUser();
+    if (!user) {
+        alert('Please login to add stocks to your watchlist');
+        window.location.href = 'login.html';
+        return;
+    }
+    const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+    if (!watchlist.includes(currentCompany.symbol)) {
+        watchlist.push(currentCompany.symbol);
+        localStorage.setItem('watchlist', JSON.stringify(watchlist));
+        alert(`${currentCompany.symbol} added to your watchlist!`);
+    } else {
+        alert(`${currentCompany.symbol} is already in your watchlist`);
+    }
+}
+</script>
+{% endblock %}
+
+</body>
+</html>

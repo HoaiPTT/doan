@@ -1,0 +1,652 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Stocks{% endblock %}
+
+{% block content %}
+<main>
+    <section class="page-header">
+        <div class="container">
+            <h1>Stock Screener</h1>
+            <p>Find and analyze stocks with advanced filtering and search</p>
+        </div>
+    </section>
+
+    <section class="stock-filters">
+        <div class="container">
+            <div class="filter-controls">
+                <div class="search-box">
+                    <input type="text" id="stock-search" placeholder="Search stocks by symbol or name..."
+                        class="search-input">
+                </div>
+                <div class="date-filter-group">
+                    <div class="date-input-group">
+                        <label for="from-date" class="date-label">From Date:</label>
+                        <input type="date" id="from-date" class="date-input">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="to-date" class="date-label">To Date:</label>
+                        <input type="date" id="to-date" class="date-input">
+                    </div>
+                    <button id="date-filter-btn" class="btn btn-primary">Filter</button>
+                    <button id="clear-date-filter" class="btn btn-outline">Clear</button>
+                    <button id="export-excel-btn" class="btn-download">Download Excel</button>
+                </div>
+                <div class="filter-group">
+                    <select id="exchange-filter" class="filter-select">
+                        <option value="">All Exchanges</option>
+                        <option value="HOSE">HOSE</option>
+                        <option value="HNX">HNX</option>
+                        <option value="UPCoM">UPCoM</option>
+                    </select>
+
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stocks-section">
+        <div class="container">
+            <div class="stocks-table-container">
+                <table class="stocks-table" id="stocks-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Exchange</th>
+                            <th>Date</th>
+                            <th>Open_price</th>
+                            <th>High_price</th>
+                            <th>Low_price</th>
+                            <th>Close_price</th>
+                            <th>Change</th>
+                            <th>Volume</th>
+
+                            <th>Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="stocks-tbody">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="loading" id="stocks-loading">
+                <div class="spinner"></div>
+                <p>Loading stocks...</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let allStocks = [];
+    let currentStocks = [];
+    let currentPage = 1;
+    const rowsPerPage = 10;
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeStocks();
+
+        const exchangeFilter = document.getElementById('exchange-filter');
+    });
+
+    async function initializeStocks() {
+        try {
+            if (allStocks.length === 0) {
+                const response = await fetch("/api/stocks/");
+                const data = await response.json();
+                allStocks = Array.isArray(data.stocks) ? data.stocks : [];
+            }
+
+            currentStocks = allStocks; // 🔹 lưu mảng hiện tại
+            displayStocks(currentStocks);
+            setupStockFilters();
+        } catch (error) {
+            console.error('Error loading stocks:', error);
+        }
+    }
+
+    function displayStocks(stocksArray) {
+        currentStocks = stocksArray; // cập nhật stocks hiện tại
+        const tbody = document.getElementById('stocks-tbody');
+        const loading = document.getElementById('stocks-loading');
+
+        loading.style.display = 'none';
+        tbody.innerHTML = '';
+
+        // Sắp xếp theo ngày giảm dần
+        const sortedStocks = [...stocksArray].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Phân trang
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedStocks = sortedStocks.slice(start, end);
+
+        paginatedStocks.forEach(stock => {
+            tbody.appendChild(createStockRow(stock));
+        });
+
+        displayPagination(sortedStocks.length);
+    }
+
+    function displayPagination(totalRows) {
+        let pagination = document.getElementById('pagination');
+        if (!pagination) {
+            const container = document.querySelector('.stocks-section .container');
+            pagination = document.createElement('div');
+            pagination.id = 'pagination';
+            pagination.className = 'pagination';
+            container.appendChild(pagination);
+        }
+
+        pagination.innerHTML = '';
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        const maxVisible = 5;
+
+        // Prev button
+        const prevBtn = document.createElement('button');
+        prevBtn.innerText = '« Prev';
+
+        // 🔹 nếu chưa login → luôn disable
+        prevBtn.disabled = (currentPage === 1) || !isLoggedIn;
+        prevBtn.addEventListener('click', () => {
+            if (isLoggedIn && currentPage > 1) {
+                currentPage--;
+                displayStocks(currentStocks);
+            }
+        });
+        pagination.appendChild(prevBtn);
+
+        // Number buttons
+        let pages = [];
+        if (totalPages <= maxVisible + 2) {
+            pages = [...Array(totalPages).keys()].map(i => i + 1);
+        } else {
+            if (currentPage <= maxVisible) {
+                pages = [...Array(maxVisible).keys()].map(i => i + 1);
+                pages.push('...', totalPages);
+            } else if (currentPage >= totalPages - maxVisible + 1) {
+                pages = [1, '...'];
+                pages.push(...[...Array(maxVisible).keys()].map(i => totalPages - maxVisible + 1 + i));
+            } else {
+                pages = [1, '...'];
+                pages.push(currentPage - 1, currentPage, currentPage + 1);
+                pages.push('...', totalPages);
+            }
+        }
+
+        pages.forEach(p => {
+            const btn = document.createElement('button');
+            btn.innerText = p;
+
+            if (p === '...') {
+                btn.disabled = true;
+                btn.className = 'dots';
+            } else {
+                btn.className = (p === currentPage) ? 'active' : '';
+
+                // 🔹 nếu chưa login → chỉ cho click trang 1
+                if (!isLoggedIn && p !== 1) {
+                    btn.disabled = true;
+                } else {
+                    btn.addEventListener('click', () => {
+                        currentPage = p;
+                        displayStocks(currentStocks);
+                    });
+                }
+            }
+            pagination.appendChild(btn);
+        });
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.innerText = 'Next »';
+
+        // 🔹 nếu chưa login → disable
+        nextBtn.disabled = (currentPage === totalPages) || !isLoggedIn;
+        nextBtn.addEventListener('click', () => {
+            if (isLoggedIn && currentPage < totalPages) {
+                currentPage++;
+                displayStocks(currentStocks);
+            }
+        });
+        pagination.appendChild(nextBtn);
+    }
+
+
+
+    let isLoggedIn = false;
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        initializeStocks();
+
+        // 🔹 check login status
+        const user = await Auth.getCurrentUser();
+        isLoggedIn = !!user; // true nếu có user, false nếu null
+
+        if (!isLoggedIn) {
+            disableFilters();
+            showNotification("You need to log in to use advanced filtering and pagination", "warning");
+
+        }
+    });
+
+    function disableFilters() {
+        // Disable input
+        document.getElementById('stock-search').disabled = true;
+        document.getElementById('exchange-filter').disabled = true;
+        document.getElementById('from-date').disabled = true;
+        document.getElementById('to-date').disabled = true;
+        document.getElementById('date-filter-btn').disabled = true;
+        document.getElementById('clear-date-filter').disabled = true;
+    }
+
+
+    function createStockRow(stock) {
+        const open = stock.open_price;
+        const close = stock.close_price;
+
+        // Tính % thay đổi
+        let changePercent = 0;
+        if (!isNaN(open) && open !== 0 && !isNaN(close)) {
+            changePercent = (close - open) / open; // decimal
+        }
+
+        const changeClass = changePercent >= 0 ? 'positive' : 'negative';
+        const changeSymbol = changePercent >= 0 ? '+' : '';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+        <td class="stock-symbol">${stock.symbol}</td>
+        <td class="stock-exchange">${stock.exchange || ''}</td>
+        <td class="stock-date">${new Date(stock.date).toLocaleDateString()}</td>
+        <td class="stock-open">${Helpers.formatCurrency(open)}</td>
+        <td class="stock-high">${Helpers.formatCurrency(stock.high_price)}</td>
+        <td class="stock-low">${Helpers.formatCurrency(stock.low_price)}</td>
+        <td class="stock-close">${Helpers.formatCurrency(close)}</td>
+        <td class="stock-change ${changeClass}">
+            ${changeSymbol}${Helpers.formatPercentage(changePercent)}
+        </td>
+        <td class="stock-volume">${Helpers.formatNumber(stock.volume)}</td>
+        <td class="stock-actions">
+            <button class="btn btn-outline btn-small" onclick="handleViewStock('${stock.symbol}')">View</button>
+            <button onclick="addToWatchlist('${stock.symbol}')" class="btn btn-primary btn-small">Watch</button>
+        </td>
+    `;
+        return row;
+    }
+
+    function setupStockFilters() {
+        const searchInput = document.getElementById('stock-search');
+        const exchangeFilter = document.getElementById('exchange-filter');
+        const dateFilterBtn = document.getElementById('date-filter-btn');
+        const clearDateFilter = document.getElementById('clear-date-filter');
+
+        if (searchInput) searchInput.addEventListener('input', debounce(applyFilters, 300));
+        if (exchangeFilter) exchangeFilter.addEventListener('change', applyFilters);
+        if (dateFilterBtn) dateFilterBtn.addEventListener('click', applyFilters);
+        if (clearDateFilter) clearDateFilter.addEventListener('click', () => {
+            document.getElementById('from-date').value = '';
+            document.getElementById('to-date').value = '';
+            applyFilters();
+        });
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('stock-search').value.toLowerCase();
+        const selectedExchange = document.getElementById('exchange-filter').value.toUpperCase();
+        const fromDateStr = document.getElementById('from-date').value;
+        const toDateStr = document.getElementById('to-date').value;
+
+        let fromDate = fromDateStr ? new Date(fromDateStr) : null;
+        let toDate = toDateStr ? new Date(toDateStr) : null;
+        if (fromDate) fromDate.setHours(0, 0, 0, 0);
+        if (toDate) toDate.setHours(23, 59, 59, 999);
+
+        const filtered = allStocks.filter(stock => {
+            const stockDate = new Date(stock.date);
+            const matchesSearch = stock.symbol.toLowerCase().includes(searchTerm) ||
+                (stock.company_name && stock.company_name.toLowerCase().includes(searchTerm));
+            const matchesExchange = !selectedExchange || (stock.exchange && stock.exchange.toUpperCase() === selectedExchange);
+            const matchesDate = (!fromDate || stockDate >= fromDate) && (!toDate || stockDate <= toDate);
+            return matchesSearch && matchesExchange && matchesDate;
+        });
+
+        currentPage = 1;
+        currentStocks = filtered; // 🔹 lưu mảng filter
+        displayStocks(currentStocks); // 🔹 hiển thị dựa trên filter
+        updateFilterStatus(filtered.length, fromDateStr || toDateStr, fromDateStr, toDateStr);
+    }
+
+
+    function filterStocksByDate() {
+        const fromDate = document.getElementById('from-date').value;
+        const toDate = document.getElementById('to-date').value;
+
+        if (!fromDate && !toDate) {
+            alert('Please select at least one date to filter.');
+            return;
+        }
+
+        if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+            alert('From Date cannot be later than To Date.');
+            return;
+        }
+
+        // Since our stock data doesn't have date fields, we'll simulate date filtering
+        // by using a mock date range for demonstration purposes
+        const filteredStocks = allStocks.filter(stock => {
+            // Simulate stock data having dates - in a real app, this would filter by actual dates
+            const mockDate = new Date(2025, 0, Math.floor(Math.random() * 30) + 1); // Random dates in January 2025
+            const stockDateStr = mockDate.toISOString().split('T')[0];
+
+            let matchesDateRange = true;
+
+            if (fromDate && stockDateStr < fromDate) {
+                matchesDateRange = false;
+            }
+
+            if (toDate && stockDateStr > toDate) {
+                matchesDateRange = false;
+            }
+
+            return matchesDateRange;
+        });
+
+        // Also apply other filters
+        const searchTerm = document.getElementById('stock-search').value.toLowerCase();
+        const selectedSector = document.getElementById('sector-filter').value;
+        const selectedMarket = document.getElementById('market-filter').value;
+
+        const finalFilteredStocks = filteredStocks.filter(stock => {
+            const matchesSearch = stock.symbol.toLowerCase().includes(searchTerm) ||
+                stock.name.toLowerCase().includes(searchTerm);
+            const matchesSector = !selectedSector || stock.sector.toLowerCase() === selectedSector;
+            const matchesMarket = !selectedMarket || stock.market === selectedMarket;
+
+            return matchesSearch && matchesSector && matchesMarket;
+        });
+
+        displayStocks(finalFilteredStocks);
+        updateFilterStatus(finalFilteredStocks.length, true, fromDate, toDate);
+    }
+
+    function clearDateFilters() {
+        document.getElementById('from-date').value = '';
+        document.getElementById('to-date').value = '';
+
+        // Reset to show all stocks with current filters
+        filterStocks();
+    }
+
+
+    function updateFilterStatus(count, isDateFilter, fromDate = null, toDate = null) {
+        let statusElem = document.getElementById('filter-status');
+        if (!statusElem) {
+            statusElem = document.createElement('div');
+            statusElem.id = 'filter-status';
+            statusElem.style.margin = '10px 0';
+            document.querySelector('.stocks-section .container').prepend(statusElem);
+        }
+
+        if (isDateFilter) {
+            if (count === 0) {
+                statusElem.textContent = 'No data available for the selected date range.';
+                statusElem.style.color = '#ef4444';
+            } else {
+                let rangeText = '';
+                if (fromDate && toDate) rangeText = `from ${fromDate} to ${toDate}`;
+                else if (fromDate) rangeText = `from ${fromDate}`;
+                else if (toDate) rangeText = `up to ${toDate}`;
+                statusElem.textContent = `Showing ${count} stock${count !== 1 ? 's' : ''} ${rangeText}`;
+                statusElem.style.color = '#10b981';
+            }
+        } else {
+            statusElem.textContent = '';
+        }
+    }
+
+    function filterStocks() {
+        const searchTerm = document.getElementById('stock-search').value.toLowerCase();
+        const selectedExchange = document.getElementById('exchange-filter').value.toUpperCase();
+
+        const filteredStocks = allStocks.filter(stock => {
+            const matchesSearch = stock.symbol.toLowerCase().includes(searchTerm) ||
+                (stock.company_name && stock.company_name.toLowerCase().includes(searchTerm));
+
+            const matchesExchange = !selectedExchange || (stock.exchange && stock.exchange.toUpperCase() === selectedExchange);
+
+            return matchesSearch && matchesExchange;
+        });
+
+        currentPage = 1; // reset về trang 1 khi filter
+        displayStocks(filteredStocks);
+    }
+
+    
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+   async function handleViewStock(symbol) {
+    const user = await Auth.getCurrentUser(true);
+
+    if (!user) {
+        showNotification("Please log in to view stock details.", "warning");
+        return;
+    }
+
+    const plan = user.subscription?.plan || "Free";
+
+    if (plan !== "Premium" && plan !== "Professional") {
+        showNotification(
+            "This feature is available for Premium and Professional users only. Upgrade your plan to access detailed stock insights!",
+            "warning"
+        );
+        return;
+    }
+
+    window.location.href = `/user/stock_detail/?symbol=${symbol}`;
+}
+
+
+
+    function showNotification(message, type = 'info') {
+        // Tạo container nếu chưa có
+        let container = document.getElementById("notification-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "notification-container";
+            container.style.position = "fixed";
+            container.style.top = "20px";
+            container.style.right = "20px";
+            container.style.display = "flex";
+            container.style.flexDirection = "column";
+            container.style.gap = "10px";
+            container.style.zIndex = "9999";
+            document.body.appendChild(container);
+        }
+
+        // Tạo notification
+        const card = document.createElement("div");
+        card.className = `notification ${type}`;
+        card.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">
+                ${type === "success" ? "✅" : type === "error" ? "❌" : type === "warning" ? "⚠️" : "ℹ️"}
+            </span>
+            <span>${message}</span>
+        </div>
+    `;
+
+        // Style
+        card.style.padding = "12px 16px";
+        card.style.borderRadius = "8px";
+        card.style.boxShadow = "0 4px 10px rgba(0,0,0,0.15)";
+        card.style.fontSize = "16px";
+        card.style.color = "#fff";
+        card.style.opacity = "0";
+        card.style.transform = "translateX(100%)";
+        card.style.transition = "all 0.3s ease";
+
+        // Màu theo type
+        switch (type) {
+            case 'success':
+                card.style.backgroundColor = "#16a34a";
+                break;
+            case 'error':
+                card.style.backgroundColor = "#dc2626";
+                break;
+            case 'warning':
+                card.style.backgroundColor = "#d97706";
+                break;
+            default:
+                card.style.backgroundColor = "#2563eb";
+        }
+
+        container.appendChild(card);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            card.style.opacity = "1";
+            card.style.transform = "translateX(0)";
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            card.style.opacity = "0";
+            card.style.transform = "translateX(100%)";
+            setTimeout(() => card.remove(), 300);
+        }, 4000);
+    }
+
+document.getElementById('export-excel-btn').addEventListener('click', async () => {
+    try {
+    const exportBtn = document.getElementById('export-excel-btn');
+    if (!exportBtn) return;
+
+    const user = await Auth.getCurrentUser(true);
+
+    if (!user) {
+        exportBtn.disabled = true;
+        exportBtn.classList.add('btn-disabled'); 
+        exportBtn.title = "Please log in to enable this feature";
+    } else {
+        exportBtn.disabled = false;
+        exportBtn.classList.remove('btn-disabled');
+        exportBtn.title = "";
+    }
+        const plan = user.subscription?.plan || "Free";
+        if (plan !== "Professional") {
+            showNotification(
+                "This feature is available for Professional users only. Upgrade to download full stock data in Excel format.",
+                "warning"
+            );
+            return;
+        }
+
+        // Xác định dữ liệu cần export (theo filter hoặc tất cả)
+        let exportData = currentStocks && currentStocks.length > 0 ? currentStocks : allStocks;
+        if (!exportData || exportData.length === 0) {
+            showNotification("No stock data available to export.", "warning");
+            return;
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(
+            exportData.map(stock => ({
+                Symbol: stock.symbol,
+                Exchange: stock.exchange,
+                Date: new Date(stock.date).toLocaleDateString(),
+                Open: stock.open_price,
+                High: stock.high_price,
+                Low: stock.low_price,
+                Close: stock.close_price,
+                Change: ((stock.close_price - stock.open_price) / stock.open_price * 100).toFixed(2) + '%',
+                Volume: stock.volume
+            }))
+        );
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Stock Data");
+
+        const filename = `stock_data_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        XLSX.writeFile(workbook, filename);
+
+        showNotification("Excel file downloaded successfully!", "success");
+    } catch (err) {
+        console.error("Export error:", err);
+        showNotification("Export failed. Please try again.", "error");
+    }
+});
+
+
+
+</script>
+<style>
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination button {
+        background-color: #f2f2f2;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 5px 10px;
+        margin: 0 3px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .pagination button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .pagination button:hover {
+        background-color: #ddd;
+    }
+
+    .pagination button.dots {
+        cursor: default;
+        background: none;
+        border: none;
+        color: #666;
+    }
+    .btn-download {
+    background-color: #2563eb; /* xanh dương */
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-download:hover {
+    background-color: #1e40af;
+}
+.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+</style>
+{% endblock %}
+</body>
+
+</html>

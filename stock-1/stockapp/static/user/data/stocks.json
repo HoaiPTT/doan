@@ -1,0 +1,112 @@
+[
+  {
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "price": 182.52,
+    "change": 2.43,
+    "changePercent": 1.35,
+    "volume": 45632100,
+    "marketCap": 2890000000000,
+    "sector": "technology",
+    "market": "NASDAQ"
+  },
+  {
+    "symbol": "GOOGL",
+    "name": "Alphabet Inc.",
+    "price": 141.80,
+    "change": -1.25,
+    "changePercent": -0.87,
+    "volume": 28456200,
+    "marketCap": 1780000000000,
+    "sector": "technology",
+    "market": "NASDAQ"
+  },
+  {
+    "symbol": "MSFT",
+    "name": "Microsoft Corporation",
+    "price": 378.85,
+    "change": 4.12,
+    "changePercent": 1.10,
+    "volume": 22145800,
+    "marketCap": 2810000000000,
+    "sector": "technology",
+    "market": "NASDAQ"
+  },
+  {
+    "symbol": "TSLA",
+    "name": "Tesla Inc.",
+    "price": 248.42,
+    "change": -8.16,
+    "changePercent": -3.18,
+    "volume": 78425600,
+    "marketCap": 789000000000,
+    "sector": "consumer",
+    "market": "NASDAQ"
+  },
+  {
+    "symbol": "AMZN",
+    "name": "Amazon.com Inc.",
+    "price": 153.75,
+    "change": 1.89,
+    "changePercent": 1.24,
+    "volume": 32156700,
+    "marketCap": 1590000000000,
+    "sector": "consumer",
+    "market": "NASDAQ"
+  },
+  {
+    "symbol": "JPM",
+    "name": "JPMorgan Chase & Co.",
+    "price": 165.32,
+    "change": 0.78,
+    "changePercent": 0.47,
+    "volume": 12456300,
+    "marketCap": 485000000000,
+    "sector": "finance",
+    "market": "NYSE"
+  },
+  {
+    "symbol": "JNJ",
+    "name": "Johnson & Johnson",
+    "price": 160.85,
+    "change": -0.52,
+    "changePercent": -0.32,
+    "volume": 8745200,
+    "marketCap": 420000000000,
+    "sector": "healthcare",
+    "market": "NYSE"
+  },
+  {
+    "symbol": "VIC",
+    "name": "Vingroup Joint Stock Company",
+    "price": 42.50,
+    "change": 1.20,
+    "changePercent": 2.90,
+    "volume": 2156700,
+    "marketCap": 18500000000,
+    "sector": "consumer",
+    "market": "HOSE"
+  },
+  {
+    "symbol": "VNM",
+    "name": "Vietnam Dairy Products Joint Stock Company",
+    "price": 78.90,
+    "change": -0.80,
+    "changePercent": -1.00,
+    "volume": 1845600,
+    "marketCap": 15200000000,
+    "sector": "consumer",
+    "market": "HOSE"
+  },
+  {
+    "symbol": "FPT",
+    "name": "FPT Corporation",
+    "price": 89.20,
+    "change": 2.30,
+    "changePercent": 2.65,
+    "volume": 3245800,
+    "marketCap": 12800000000,
+    "sector": "technology",
+    "market": "HOSE"
+  }
+]

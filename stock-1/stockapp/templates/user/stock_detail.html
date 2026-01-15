@@ -1,0 +1,274 @@
+{% extends "user/base_layout.html" %}
+
+{% block title %}Stock Details{% endblock %}
+
+{% block content %}
+    
+    <main>
+        <div class="loading" id="main-loading">
+            <div class="spinner"></div>
+            <p>Loading stock details...</p>
+        </div>
+
+        <div id="stock-content" style="display: none;">
+            <section class="stock-header">
+                <div class="container">
+                    <div class="stock-info">
+                        <div class="stock-main-info">
+                            <h1 id="stock-name">Stock Name</h1>
+                            <div class="stock-symbol-market">
+                                <span id="stock-symbol">SYMBOL</span>
+                                <span class="separator">•</span>
+                                <span id="stock-volume">Volume</span>
+                            </div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price" id="current-price">$0.00</div>
+                            <div class="price-change" id="price-change">+$0.00 (+0.00%)</div>
+                            <div class="last-updated">Last updated: <span id="last-updated">--</span></div>
+                        </div>
+                    </div>
+                    <div class="stock-actions">
+                        <button onclick="addToWatchlist('${stock.symbol}')" class="btn btn-primary ">Add toWatch</button>
+
+                        <a href="#" class="btn btn-outline" id="company-link">View Company</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stock-chart">
+                <div class="container">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Price Chart</h3>
+                            <div class="chart-controls">
+                                <button class="chart-period active" data-period="1D">1D</button>
+                                <button class="chart-period" data-period="1W">1W</button>
+                                <button class="chart-period" data-period="1M">1M</button>
+                                <button class="chart-period" data-period="3M">3M</button>
+                                <button class="chart-period" data-period="1Y">1Y</button>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="stock-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stock-details">
+                <div class="container">
+                    <div class="details-grid">
+                        <div class="stats-card">
+                            <h3>Key Statistics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-label">Market Cap</span>
+                                    <span class="stat-value" id="market-cap">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Volume</span>
+                                    <span class="stat-value" id="volume">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">P/E Ratio</span>
+                                    <span class="stat-value" id="pe-ratio">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">52W High</span>
+                                    <span class="stat-value" id="high-52w">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">52W Low</span>
+                                    <span class="stat-value" id="low-52w">--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Dividend Yield</span>
+                                    <span class="stat-value" id="dividend-yield">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="company-card">
+                            <h3>Company Information</h3>
+                            <div class="company-info">
+                                <div class="company-field">
+                                    <span class="field-label">Sector:</span>
+                                    <span class="field-value" id="company-sector">--</span>
+                                </div>
+                                <div class="company-field">
+                                    <span class="field-label">Industry:</span>
+                                    <span class="field-value" id="company-industry">--</span>
+                                </div>
+                               
+                            </div>
+                            <div class="company-description">
+                                <h4>Description</h4>
+                                <p id="company-description">Loading company description...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_scripts %}
+<style> 
+    .stock-price-info .current-price::before {
+    content: "Current Price: ";
+    font-weight: bold;
+}
+
+.stock-price-info .price-change::before {
+    content: "Price Change: ";
+    font-weight: bold;
+}
+
+.stock-price-info .last-updated::before {
+    content: "Last updated: ";
+    font-weight: bold;
+}
+
+</style>
+    <script>
+        let currentStock = null;
+        let stockChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const symbol = urlParams.get('symbol');
+
+            if (symbol) {
+        // Gắn link sang trang company với query param
+        document.getElementById('company-link').href = `/user/company/?symbol=${symbol}`;
+
+    }
+
+    initializeStockDetail(symbol);
+        });
+
+        async function initializeStockDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const symbol = urlParams.get('symbol');
+
+            if (!symbol) {
+                alert('No stock symbol provided');
+                window.location.href = 'stocks.html';
+                return;
+            }
+
+            try {
+                currentStock = await API.getStockDetail(symbol);
+                const chartData = await API.getStockChart(symbol, '1D');
+                
+                displayStockInfo(currentStock);
+                Charts.renderStockChart('stock-chart', chartData);
+                setupChartControls(symbol);
+                
+                document.getElementById('main-loading').style.display = 'none';
+                document.getElementById('stock-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading stock detail:', error);
+                alert('Error loading stock data');
+            }
+        }
+
+        function displayStockInfo(stock) {
+    // Tên công ty + mã
+    document.getElementById('stock-name').textContent = stock.name || stock.symbol;
+    document.getElementById('stock-symbol').textContent = stock.symbol;
+    document.getElementById('stock-volume').textContent = Helpers.formatNumber(stock.volume);
+
+    // Giá hiện tại = close_price
+    document.getElementById('current-price').textContent = Helpers.formatCurrency(stock.close_price);
+
+   // Tính % thay đổi
+let changePercent = 0;
+const open = stock.open_price;
+const close = stock.close_price;
+if (!isNaN(open) && open !== 0 && !isNaN(close)) {
+    changePercent = (close - open) / open; // dạng thập phân
+}
+
+const changeClass = changePercent >= 0 ? 'positive' : 'negative';
+const changeSymbol = changePercent >= 0 ? '+' : '';
+
+// Gán vào element (ví dụ có id = "price-change")
+document.getElementById('price-change').textContent =
+    `${changeSymbol}${Helpers.formatPercentage(changePercent)}`;
+document.getElementById('price-change').className = `price-change ${changeClass}`;
+
+    document.getElementById('last-updated').textContent = stock.date;
+
+    // Company link
+    document.getElementById('company-link').href = `/user/company/?symbol=${stock.symbol}`;
+
+    // Statistics
+    // Statistics (fake nếu không có dữ liệu)
+    document.getElementById('market-cap').textContent = stock.market_cap
+    ? Helpers.formatCurrency(stock.market_cap, true)
+    : Helpers.formatCurrency(Math.floor(Math.random() * 1e12), true);
+
+    document.getElementById('volume').textContent = Helpers.formatNumber(stock.volume || Math.floor(Math.random() * 1e7));
+
+    document.getElementById('pe-ratio').textContent = stock.pe_ratio || (5 + Math.random() * 20).toFixed(2);
+    document.getElementById('high-52w').textContent = stock.high_52w || Helpers.formatCurrency((stock.close_price || 50) * (1.2 + Math.random() * 0.3));
+    document.getElementById('low-52w').textContent = stock.low_52w || Helpers.formatCurrency((stock.close_price || 50) * (0.7 - Math.random() * 0.2));
+    document.getElementById('dividend-yield').textContent = stock.dividend_yield || (Math.random() * 5).toFixed(2) + "%";
+
+
+    // Company info
+    document.getElementById('company-sector').textContent = stock.exchange || 'N/A';
+    document.getElementById('company-industry').textContent = stock.industry || 'N/A';
+
+    document.getElementById('company-description').textContent = stock.profile || 'No description available.';
+}
+
+
+        function setupChartControls(symbol) {
+            const periodButtons = document.querySelectorAll('.chart-period');
+            
+            periodButtons.forEach(button => {
+                button.addEventListener('click', async function() {
+                    periodButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const period = this.getAttribute('data-period');
+                    try {
+                        const chartData = await API.getStockChart(symbol, period);
+                        Charts.updateStockChart(chartData);
+                    } catch (error) {
+                        console.error('Error updating chart:', error);
+                    }
+                });
+            });
+        }
+
+        async function addToWatchlist() {
+    if (!currentStock) return;
+
+    const user = await Auth.getCurrentUser(); 
+    if (!user) {
+        showNotification("Please log in to add stocks to your watchlist.", "warning");
+        setTimeout(() => window.location.href = '/login/', 1500);
+        return;
+    }
+
+    const watchlistKey = `watchlist_${user.email}`;
+    const watchlist = JSON.parse(localStorage.getItem(watchlistKey) || '[]');
+
+    if (!watchlist.includes(currentStock.symbol)) {
+        watchlist.push(currentStock.symbol);
+        localStorage.setItem(watchlistKey, JSON.stringify(watchlist));
+        showNotification(`${currentStock.symbol} has been added to your watchlist!`, "success");
+    } else {
+        showNotification(`${currentStock.symbol} is already in your watchlist.`, "info");
+    }
+}
+
+    </script>
+      {% endblock %}
+</body>
+</html>

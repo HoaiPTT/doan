@@ -1,0 +1,271 @@
+{% extends 'admin/base_layout.html' %}
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<section class="section">
+    <div class="section-header">
+      <h1>Manage Stock</h1>
+    </div>
+
+    <div class="section-body">
+      <div class="row">
+        <div class="card" style="flex-grow: 1;">
+          <div class="card-header" style="    justify-content: space-between;">
+            <div style="align-items: center;flex-direction: row;display: flex;gap: 30px;padding: 15px;">
+              <div style="    display: flex;flex-direction: row;align-items: center;gap: 15px;">
+                <div class="check-date">
+                  <label for="date-start">From date:</label>
+                  <input type="date" class="date-choice" id="date-start">
+                  <i class="icon_calendar"></i>
+              </div>
+              <div class="check-date">
+                  <label for="date-end">To date:</label>
+                  <input type="date"  class="date-choice" id="date-end">
+                  <i class="icon_calendar"></i>
+              </div>
+              </div>
+          </div>
+            <form style="flex-grow: 0.1;">
+              <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search">
+                <div class="input-group-btn">
+                  <button class="btn btn-primary" id="searchButton"><i class="fas fa-search"></i></button>
+                </div>
+              </div>
+            </form>
+          </div>
+            <div class="card-body">
+              <div class="section-title mt-0">
+                <button class="btn btn-primary" id="cleanButton"><i class="bi bi-trash3-fill"></i> Clean data</button>
+                <div id="loading" style="display:none;">⏳ Đang xử lý...</div>
+                <div class="alert alert-danger" style="display: none;"></div>
+              </div>
+              <table class="table table-bordered" style="table-layout: auto; width: 100%;">
+                <thead>
+                    <tr class="highlight">
+                        <th>STT</th>
+                        <th>Date</th>
+                        <th>Symbol</th>
+                        <th>Open_price</th>
+                        <th>Close_price</th>
+                        <th>High_price</th>
+                        <th>Low_price</th>
+                        <th>Change</th>
+                        <th>Volume</th>
+                        <th>Lastest update</th>
+                      </tr>
+                </thead>
+                <tbody>
+                 
+                </tbody>
+              </table>
+              <div id="pagination" class="mt-3"></div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </section>
+  <style>
+    button:focus {
+     outline: none; 
+    }
+    .status-btn{
+    border-radius: 50px;
+    padding: 8px 10px;
+    width: 120px;
+    border: none;
+    margin: 5px;
+    }
+    .add-button:hover{
+    background-color: #e7ffe761;
+    color: #39a739 !important;
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px 5px #e8fbe8b0;
+    cursor: pointer;
+    text-decoration: underline !important;
+    }
+    .btn-detail{
+    box-shadow: 0 2px 6px #ffe8ba;
+    background-color: #f3a205;
+    border-color: #f3a205;
+    margin-right: 3px;
+    }
+    a.btn.btn-detail:hover {
+    background-color: #ff8e03 !important;
+    }
+    .swal-custom-icon{
+      font-size: 10px !important;
+    }
+    .date-choice{
+      height: 45px;
+    width: 150px;
+    text-align: center;
+    border: 1px solid #dadada;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    padding: 5px;
+    }
+    .red {
+    color: red;
+  }
+
+  .green {
+    color: green;
+  }
+  .btn-primary:focus, .btn-primary.disabled:focus,.btn-primary:active {
+    box-shadow: 0 2px 6px #acb5f6;
+    background-color: #6777ef !important;
+    border-color: #6777ef;
+}
+  </style>
+<script>
+      const admin_token = localStorage.getItem('admin_token');
+      let csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      let currentPage = 1;
+      const limit = 10;
+
+  async function fetchStock(page = 1) {
+    currentPage = page;
+    const searchQuery = document.getElementById("searchInput").value.trim();
+    const from_date = document.getElementById("date-start").value.trim();
+    const to_date = document.getElementById("date-end").value.trim();
+    const response = await fetch(`/get_list_stock?search=${encodeURIComponent(searchQuery)}&from_date=${from_date}&to_date=${to_date}
+    &page=${page}&limit=${limit}`, {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${admin_token}`
+          }
+      });
+    const data = await response.json();
+
+    if (data.success) {
+      renderStock(data.stock_data);
+      renderPagination(data.total_pages,currentPage);
+    } else {
+      document.getElementById("orderList").innerHTML = `<p class="text-danger">Not found!</p>`;
+      document.getElementById("pagination").innerHTML = "";
+    }
+  }
+  document.getElementById('date-start').addEventListener('change', () => {
+    fetchStock();
+});
+document.getElementById('date-end').addEventListener('change', () => {
+    fetchStock();
+});
+  function renderPagination(totalPages, currentPage) {
+    let paginationHTML = `<nav><ul class="pagination">`;
+
+    paginationHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" onclick="fetchStock(${currentPage - 1})">Previous</a></li>`;
+
+    let range = [1, totalPages]; 
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++)
+      range.push(i);
+
+    range = [...new Set(range)].sort((a, b) => a - b); 
+
+    range.forEach((i, idx) => {
+      if (idx > 0 && i !== range[idx - 1] + 1) paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+      paginationHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" onclick="fetchStock(${i})">${i}</a></li>`;
+    });
+
+    paginationHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" onclick="fetchStock(${currentPage + 1})">Next</a></li>`;
+
+    document.getElementById("pagination").innerHTML = paginationHTML + `</ul></nav>`;
+  }
+
+
+  fetchStock();
+  document.getElementById("searchButton").addEventListener("click", function(event) {
+    event.preventDefault();
+    currentPage = 1;
+    fetchStock();
+});
+  async function renderStock(orders) {
+          const tbody = document.querySelector('.table tbody');
+          tbody.innerHTML='';
+          data = orders;
+
+          data.forEach((item, index) => {
+            let className = item.change > 0 ? "green" : item.change < 0 ? "red" : "neutral";
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${(currentPage - 1) * limit + index + 1}</td>
+           <td>${ new Date(item.date).toISOString().split('T')[0].split('-').reverse().join('/')}</td>
+            <td>${item.symbol}</td>
+            <td>${item.open_price}</td>
+            <td>${item.high_price}</td>
+            <td>${item.low_price}</td>
+            <td>${item.close_price}</td>
+            <td class="${className}">
+              ${item.change.toFixed(2)}%
+              
+          </td>
+
+            <td>${item.volume}</td>
+           
+            <td>${item.updated_at}</td>
+            `;
+            tbody.appendChild(row);
+        });
+      }
+      
+  
+ 
+
+ document.getElementById('cleanButton').addEventListener('click', function () {
+    Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: "Dữ liệu cổ phiếu cũ sẽ bị xóa!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Xác nhận xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/clean_data/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${admin_token}`,
+                    'X-CSRFToken': csrftoken,
+
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Thành công',
+                      text: data.message
+                  }).then(() => {
+                    fetchStock();
+                  });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.error || 'Có lỗi xảy ra khi xóa dữ liệu.'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi mạng',
+                    text: error.toString()
+                });
+            });
+        }
+    });
+});
+</script>
+
+
+{% endblock %}

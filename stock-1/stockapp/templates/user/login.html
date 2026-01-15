@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockHub - Login</title>
+    <link rel="stylesheet" href="/static/user/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+    <header class="header">
+        
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="/user/home" class="nav-logo">StockHub</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/user/home" class="nav-link">Home</a>
+                <a href="/user/stocks" class="nav-link">Stocks</a>
+                <a href="/user/news" class="nav-link">News</a>
+                <a href="/user/subscription" class="nav-link">Subscription</a>
+                <div class="nav-auth">
+                    <a href="/user/login" class="btn btn-outline">Login</a>
+                    <a href="/user/register" class="btn btn-primary active">Sign Up</a>
+                </div>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-form-wrapper">
+                <div class="auth-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your StockHub account to continue</p>
+                </div>
+
+                <form class="auth-form" id="login-form">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input" required 
+                               placeholder="Enter your email address">
+                        <div class="form-error" id="email-error"></div>
+                    </div>
+
+                   
+                    <div class="form-group" style="position: relative;">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" required 
+                            placeholder="Enter your password" style="padding-right: 40px;">
+                        
+                        <!-- icon mắt -->
+                        <i class="fa-solid fa-eye" id="togglePassword" 
+                        style="position: absolute; right: 10px; top: 43px; cursor: pointer; color: #666;">
+                        </i>
+
+                        <div class="form-error" id="password-error"></div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-full" id="login-btn">
+                        Sign In
+                    </button>
+                
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="/user/register">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+     <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>StockHub</h3>
+                    <p>Your trusted partner in stock market investments</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Products</h4>
+                        <a href="/user/stocks">Stock Screener</a>
+                        <a href="/user/news">Market News</a>
+                        <a href="/user/subscription">Premium Plans</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Company</h4>
+                        <a href="#about">About Us</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#privacy">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StockHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Owl Carousel CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+
+<!-- Owl Carousel JS -->
+
+    <script src="/static/user/js/helpers.js"></script>
+    <script src="/static/user/js/api.js"></script>
+    <script src="/static/user/js/auth.js"></script>
+    <script src="/static/user/js/main.js"></script>
+   <script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeLoginForm();
+});
+
+function initializeLoginForm() {
+    const form = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        
+        clearFormErrors();
+        
+        if (!validateLoginForm(email, password)) return;
+        
+        loginBtn.textContent = 'Signing In...';
+        loginBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/login/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            // Nếu server trả về HTML (ví dụ lỗi 403 Django), ném lỗi
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Server did not return JSON');
+            }
+
+            const result = await response.json();
+
+           if (result.success) {
+    // Lưu token + user info
+    localStorage.setItem('token', result.user.token || '');
+    localStorage.setItem('currentUser', JSON.stringify(result.user));
+
+    // Sau khi login thành công → verify ngay với api_user_info
+    try {
+        const verifyRes = await fetch('/api/userinfo/', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${result.user.token}` }
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.success) {
+            localStorage.setItem('currentUser', JSON.stringify(verifyData.user));
+            const urlParams = new URLSearchParams(window.location.search);
+            const returnUrl = urlParams.get('return') || '/user/home/';
+            window.location.href = returnUrl;
+        } else {
+            alert('Token is invalid or expired, please login again');
+            localStorage.clear();
+            window.location.href = '/user/login';
+        }
+    } catch (e) {
+        console.error('Verification error:', e);
+        alert('Server error, please try again later');
+    }
+} else {
+    showFormError('password', result.error || 'Invalid email or password');
+    loginBtn.textContent = 'Sign In';
+    loginBtn.disabled = false;
+}
+
+
+        } catch (error) {
+            console.error('Login error:', error);
+            loginBtn.textContent = 'Sign In';
+            loginBtn.disabled = false;
+        }
+    });
+}
+
+function validateLoginForm(email, password) {
+    let isValid = true;
+
+    if (!email) {
+        showFormError('email', 'Email is required');
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        showFormError('email', 'Please enter a valid email address');
+        isValid = false;
+    }
+
+    if (!password) {
+        showFormError('password', 'Password is required');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function showFormError(field, message) {
+    const errorElement = document.getElementById(field + '-error');
+    const inputElement = document.getElementById(field);
+
+    if (errorElement) errorElement.textContent = message;
+    if (inputElement) inputElement.classList.add('error');
+}
+
+function clearFormErrors() {
+    const errorElements = document.querySelectorAll('.form-error');
+    const inputElements = document.querySelectorAll('.form-input');
+
+    errorElements.forEach(el => el.textContent = '');
+    inputElements.forEach(el => el.classList.remove('error'));
+}
+
+// Forgot password placeholder
+document.querySelector('.forgot-password').addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('Password reset functionality would be implemented here.');
+});
+
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // đổi icon mắt/mắt gạch
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+
+</script>
+</body>
+</html>
